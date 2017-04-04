@@ -1,0 +1,9 @@
+node_modules/*
+.git/
+.\#*
+.tern-port
+*~                      
+\#*\#
+/docs/*
+/db/seeders/*
+/test/*

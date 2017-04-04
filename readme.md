@@ -3,21 +3,21 @@ Quick start API with Hapi
 General idea and todo-list:
 
 Base:
-* Composable plugins with Glue
-* Environment Configuration
-* Security Enhancements
-* Eslint Configuration
-* Testing with Lab.js
-* Swagger Documentation
+* :white_check_mark: Composable plugins with Glue
+* :white_check_mark: Environment Configuration
+* :white_medium_square: Security Enhancements
+* :white_check_mark: Eslint Configuration
+* :white_medium_square: Testing with Lab.js
+* :white_check_mark: Swagger Documentation
 
 Will be deployed and maintained into three branches:
-* with Sequelize & Relational Database
-* with MongoDB
-* with Neo4j Graph Database
+* :white_medium_square: with Sequelize & Relational Database
+* :white_medium_square: with MongoDB
+* :white_medium_square: with Neo4j Graph Database
 
 Features:
-* Users Model & CRUD
-* Authentication & Authorization with JWT
-* Session management
-1. Via Database
-2. With Redis
+* :white_medium_square: Users Model & CRUD
+* :white_medium_square: Authentication & Authorization with JWT
+* :white_medium_square: Session management
+  - :white_medium_square: Via Database
+  - :white_medium_square: Via Redis
