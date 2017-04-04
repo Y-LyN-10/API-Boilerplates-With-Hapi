@@ -4,7 +4,8 @@ const fs        = require('fs');
 
 const manifest = {
   server: {
-    debug: { request: [ 'error' ] }
+    debug: {request: ['error']},
+    cache: {engine: require('catbox-memory')}
   },
   connections: [
     {
@@ -12,7 +13,12 @@ const manifest = {
       port: envKey('port'),
       routes: {
         cors: true,
-        security: true
+        security: true,
+        additionalExposedHeaders: [
+          'X-RateLimit-Limit',
+          'X-RateLimit-Remaining',
+          'X-RateLimit-Reset'
+        ]
       },
       router: {stripTrailingSlash: true},
       labels: [ 'api' ]
@@ -20,6 +26,16 @@ const manifest = {
   ],
   registrations: [
     {
+      plugin: {
+        register: 'hapi-rate-limit',
+        options: {
+          userLimit: 500,
+          userCache: {
+            expiresIn: 1000 * 60 * 5 // 5 minutes
+          }
+        }
+      }
+    }, {
       plugin: './api/auth',
       options: { routes: { prefix: '/auth' }}
     }, {

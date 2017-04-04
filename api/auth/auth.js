@@ -8,6 +8,13 @@ module.exports.login = {
   description: 'Login',
   auth: false,
   notes: 'Autnenticate with email and password to request JWT access token',
+  plugins: {
+    // will be working after Redis is installed
+    'hapi-attempts-limiter': {
+      limit: 3,
+      duration: 120 // in seconds
+    }
+  },
   validate: {
     payload: Joi.object()
       .keys({
@@ -19,16 +26,8 @@ module.exports.login = {
       .without('password', 'refreshToken')
       .or('refreshToken', ['email', 'password'])
   },
-  /*eslint-disable */
-  /* response: {
-    schema: {
-      accessToken: Joi.string().required().example('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN1cGVyLnl1QHdlYmlkcTYsImFnZW50IjoiTW9...'),
-      refreshToken: Joi.string().required().example('e7dba717-0a0d-43c3-b4e3-ebf398bb678e.b87be58de1cd58fd4ffc00cc23e188a733c9c5f486ec4e16dc...')
-    }
-  }, */  
-  /*eslint-enable */
   handler: function (request, reply) {
-    return reply(Boom.notImplemented());
+    return reply(Boom.badRequest());
   }
 };
 
