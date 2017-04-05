@@ -7,11 +7,11 @@ General idea and todo-list:
 * :white_check_mark: Good API Logging
 * :white_check_mark: Environment Configuration
 * :white_check_mark: Caching with Redis
-* :white_medium_square: Security Enhancements
+* :white_check_mark: Security Enhancements
   - :white_check_mark: Secure headers (cors, xss, xframe, nosniff, etc...)
   - :white_check_mark:: SSL Support
   - :white_check_mark: Limit number of requests
-  - :white_medium_square: Limit number of failed login attempts
+  - :white_check_mark: Limit number of failed login attempts
 * :white_check_mark: Eslint Configuration
 * :white_medium_square: Testing with Lab.js
 * :white_check_mark: Swagger Documentation

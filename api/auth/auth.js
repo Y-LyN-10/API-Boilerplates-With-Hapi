@@ -8,6 +8,9 @@ module.exports.login = {
   description: 'Login',
   auth: false,
   notes: 'Autnenticate with email and password to request JWT access token',
+  plugins: {
+    'hapi-rate-limit': { pathLimit: 3 }
+  },
   validate: {
     payload: Joi.object()
       .keys({
