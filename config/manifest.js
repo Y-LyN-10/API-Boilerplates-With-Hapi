@@ -62,6 +62,10 @@ const manifest = {
         userLimit: 500,
         userCache: {
           expiresIn: 1000 * 60 * 5 // 5 minutes
+        },
+        pathLimit: false,
+        pathCache: {
+          expiresIn: 1000 * 60 // 1 min
         }
       }
     }
