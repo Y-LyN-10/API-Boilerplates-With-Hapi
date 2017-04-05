@@ -13,7 +13,7 @@ General idea and todo-list:
   - :white_check_mark: Limit number of requests
   - :white_check_mark: Limit number of failed login attempts
 * :white_check_mark: Eslint Configuration
-* :white_medium_square: Testing with Lab.js
+* :white_check_mark: Testing with Lab.js
 * :white_check_mark: Swagger Documentation
 
 *Will be deployed and maintained into three branches:*

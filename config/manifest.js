@@ -7,44 +7,43 @@ const manifest = {
     debug: {request: [ 'error' ]},
     cache: {engine: require('catbox-redis')}
   },
-  connections: [
-    {
-      host: envKey('host'),
-      port: envKey('port'),
-      routes: {
-        cors: {
-          origin: ['*'],
-          additionalExposedHeaders: [
-            'X-RateLimit-Limit',
-            'X-RateLimit-Remaining',
-            'X-RateLimit-Reset'
-          ]
-        },
-        security: true
+  connections: [{
+    host: envKey('host'),
+    port: envKey('port'),
+    routes: {
+      cors: {
+        origin: [ '*' ],
+        additionalExposedHeaders: [
+          'X-RateLimit-Limit',
+          'X-RateLimit-Remaining',
+          'X-RateLimit-Reset'
+        ]
       },
-      router: {stripTrailingSlash: true},
-      labels: [ 'api' ]
-    }, {
-      host: envKey('host'),
-      port: envKey('securePort'),
-      tls: {
-        key: fs.readFileSync('config/.keys/key.pem'),
-        cert: fs.readFileSync('config/.keys/cert.pem')
-     // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+      security: true
+    },
+    router: {stripTrailingSlash: true},
+    labels: [ 'api' ]
+  }, {
+    host: envKey('host'),
+    port: envKey('securePort'),
+    tls: {
+      key: fs.readFileSync('config/.keys/key.pem'),
+      cert: fs.readFileSync('config/.keys/cert.pem')
+
+   // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+    },
+    routes: {
+      cors: {
+        origin: [ '*' ],
+        additionalExposedHeaders: [
+          'X-RateLimit-Limit',
+          'X-RateLimit-Remaining',
+          'X-RateLimit-Reset'
+        ]
       },
-      routes: {
-        cors: {
-          origin: ['*'],
-          additionalExposedHeaders: [
-            'X-RateLimit-Limit',
-            'X-RateLimit-Remaining',
-            'X-RateLimit-Reset'
-          ]
-        },
-        security: true
-      }
+      security: true
     }
-  ],
+  }],
   registrations: [{
     plugin: {
       register: './plugins/redis',
