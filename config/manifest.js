@@ -4,7 +4,7 @@ const fs        = require('fs');
 
 const manifest = {
   server: {
-    debug: {request: ['error']},
+    debug: {request: [ 'error' ]},
     cache: {engine: require('catbox-memory')}
   },
   connections: [
@@ -14,6 +14,7 @@ const manifest = {
       routes: {
         cors: true,
         security: true
+
      // additionalExposedHeaders: [
      //   'X-RateLimit-Limit',
      //   'X-RateLimit-Remaining',
@@ -26,8 +27,9 @@ const manifest = {
       host: envKey('host'),
       port: envKey('securePort'),
       tls: {
-        key: fs.readFileSync('config/keys/key.pem'),
-        cert: fs.readFileSync('config/keys/cert.pem')
+        key: fs.readFileSync('config/.keys/key.pem'),
+        cert: fs.readFileSync('config/.keys/cert.pem')
+
      // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
       },
       routes: {
