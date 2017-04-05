@@ -1,0 +1,1905 @@
+{
+  "tests": {
+    "Server": [
+      {
+        "title": "initializes",
+        "err": false,
+        "duration": 5
+      }
+    ]
+  },
+  "duration": 134,
+  "leaks": [],
+  "coverage": {
+    "sloc": 316,
+    "hits": 297,
+    "misses": 19,
+    "percent": 93.9873417721519,
+    "files": [
+      {
+        "filename": "server.js",
+        "percent": "73.33",
+        "hits": 22,
+        "misses": 8,
+        "sloc": 30,
+        "source": {
+          "1": {
+            "source": "'use strict';",
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "const Glue = require('glue');",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "const Labbable = require('labbable');",
+            "hits": 1,
+            "miss": false
+          },
+          "5": {
+            "source": "const labbable = module.exports = new Labbable();",
+            "hits": 1,
+            "miss": false
+          },
+          "6": {
+            "source": "const manifest = require('./config/manifest');",
+            "hits": 1,
+            "miss": false
+          },
+          "7": {
+            "source": "",
+            "miss": false
+          },
+          "8": {
+            "source": "Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {",
+            "hits": 1,
+            "miss": false
+          },
+          "9": {
+            "source": "  if (err) { throw err; } else {",
+            "hits": 0,
+            "miss": true
+          },
+          "10": {
+            "source": "",
+            "miss": false
+          },
+          "11": {
+            "source": "    server.log(",
+            "hits": 1,
+            "miss": false
+          },
+          "12": {
+            "source": "      ['info', 'server'],",
+            "miss": false
+          },
+          "13": {
+            "source": "      `Installed plugins: ${Object.keys(server.plugins).join(', ')}`",
+            "miss": false
+          },
+          "14": {
+            "source": "    );",
+            "miss": false
+          },
+          "15": {
+            "source": "",
+            "miss": false
+          },
+          "16": {
+            "source": "    // make the server 'testable' with lab.js",
+            "miss": false
+          },
+          "17": {
+            "source": "    labbable.using(server);",
+            "hits": 1,
+            "miss": false
+          },
+          "18": {
+            "source": "",
+            "miss": false
+          },
+          "19": {
+            "source": "    server.initialize((initErr) => {",
+            "hits": 1,
+            "miss": false
+          },
+          "20": {
+            "source": "      if (initErr) { throw initErr; }",
+            "hits": 0,
+            "miss": true
+          },
+          "21": {
+            "source": "",
+            "miss": false
+          },
+          "22": {
+            "source": "      // Don't continue to start server if module is being require()'d (likely in a test)",
+            "miss": false
+          },
+          "23": {
+            "source": "      if (module.parent) { return; }",
+            "chunks": [
+              {
+                "source": "      if ("
+              },
+              {
+                "source": "module.parent",
+                "miss": "true"
+              },
+              {
+                "source": ") { return; }"
+              }
+            ],
+            "hits": 2,
+            "miss": true
+          },
+          "24": {
+            "source": "",
+            "miss": false
+          },
+          "25": {
+            "source": "      server.start((startErr) => {",
+            "hits": 0,
+            "miss": true
+          },
+          "26": {
+            "source": "        if (startErr) { throw startErr; }",
+            "hits": 0,
+            "miss": true
+          },
+          "27": {
+            "source": "",
+            "miss": false
+          },
+          "28": {
+            "source": "        // Log to the console the host and port info",
+            "miss": false
+          },
+          "29": {
+            "source": "        server.connections.forEach(connection => {",
+            "hits": 0,
+            "miss": true
+          },
+          "30": {
+            "source": "          server.log(",
+            "chunks": [
+              {
+                "source": "          "
+              },
+              {
+                "source": "server.log(",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "31": {
+            "source": "            ['info', 'server'],",
+            "miss": false
+          },
+          "32": {
+            "source": "            `server is listening on ${connection.info.uri} in ${process.env.NODE_ENV} mode`",
+            "miss": false
+          },
+          "33": {
+            "source": "          );",
+            "chunks": [
+              {
+                "source": "          );",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "34": {
+            "source": "        });",
+            "miss": false
+          },
+          "35": {
+            "source": "      });",
+            "miss": false
+          },
+          "36": {
+            "source": "    });",
+            "miss": false
+          },
+          "37": {
+            "source": "",
+            "miss": false
+          },
+          "38": {
+            "source": "  }",
+            "miss": false
+          },
+          "39": {
+            "source": "});",
+            "miss": false
+          },
+          "40": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [],
+        "basename": "server.js",
+        "percentClass": "medium"
+      },
+      {
+        "filename": "api/auth/auth.js",
+        "percent": "94.12",
+        "hits": 32,
+        "misses": 2,
+        "sloc": 34,
+        "source": {
+          "1": {
+            "source": "'use strict';",
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "const Boom  = require('boom');",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "const Joi   = require('joi');",
+            "hits": 1,
+            "miss": false
+          },
+          "5": {
+            "source": "",
+            "miss": false
+          },
+          "6": {
+            "source": "module.exports.login = {",
+            "hits": 1,
+            "miss": false
+          },
+          "7": {
+            "source": "  tags: ['api', 'auth'],",
+            "miss": false
+          },
+          "8": {
+            "source": "  description: 'Login',",
+            "miss": false
+          },
+          "9": {
+            "source": "  auth: false,",
+            "miss": false
+          },
+          "10": {
+            "source": "  notes: 'Autnenticate with email and password to request JWT access token',",
+            "miss": false
+          },
+          "11": {
+            "source": "  plugins: {",
+            "miss": false
+          },
+          "12": {
+            "source": "    'hapi-rate-limit': { pathLimit: 3 }",
+            "miss": false
+          },
+          "13": {
+            "source": "  },",
+            "miss": false
+          },
+          "14": {
+            "source": "  validate: {",
+            "miss": false
+          },
+          "15": {
+            "source": "    payload: Joi.object()",
+            "miss": false
+          },
+          "16": {
+            "source": "      .keys({",
+            "miss": false
+          },
+          "17": {
+            "source": "        email: Joi.string().email(),",
+            "miss": false
+          },
+          "18": {
+            "source": "        password: Joi.string().min(8).max(200),",
+            "miss": false
+          },
+          "19": {
+            "source": "        refreshToken: Joi.string().optional().allow('')",
+            "miss": false
+          },
+          "20": {
+            "source": "      })",
+            "miss": false
+          },
+          "21": {
+            "source": "      .with('email', 'password')",
+            "miss": false
+          },
+          "22": {
+            "source": "      .without('password', 'refreshToken')",
+            "miss": false
+          },
+          "23": {
+            "source": "      .or('refreshToken', ['email', 'password'])",
+            "miss": false
+          },
+          "24": {
+            "source": "  },",
+            "miss": false
+          },
+          "25": {
+            "source": "  handler: function (request, reply) {",
+            "miss": false
+          },
+          "26": {
+            "source": "    return reply(Boom.badRequest());",
+            "chunks": [
+              {
+                "source": "    "
+              },
+              {
+                "source": "return reply(Boom.badRequest());",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "27": {
+            "source": "  }",
+            "miss": false
+          },
+          "28": {
+            "source": "};",
+            "miss": false
+          },
+          "29": {
+            "source": "",
+            "miss": false
+          },
+          "30": {
+            "source": "module.exports.logout = {",
+            "hits": 1,
+            "miss": false
+          },
+          "31": {
+            "source": "  tags: ['api', 'auth'],",
+            "miss": false
+          },
+          "32": {
+            "source": "  description: 'Logout',",
+            "miss": false
+          },
+          "33": {
+            "source": "  notes: 'Log out from the server to force token invalidation and revoke access',",
+            "miss": false
+          },
+          "34": {
+            "source": "  handler: function (request, reply) {",
+            "miss": false
+          },
+          "35": {
+            "source": "    return reply(Boom.notImplemented());",
+            "chunks": [
+              {
+                "source": "    "
+              },
+              {
+                "source": "return reply(Boom.notImplemented());",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "36": {
+            "source": "  }",
+            "miss": false
+          },
+          "37": {
+            "source": "};",
+            "miss": false
+          },
+          "38": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "api",
+          "auth"
+        ],
+        "basename": "auth.js",
+        "percentClass": "high",
+        "dirname": "api/auth/"
+      },
+      {
+        "filename": "api/auth/index.js",
+        "percent": "100",
+        "hits": 11,
+        "misses": 0,
+        "sloc": 11,
+        "source": {
+          "1": {
+            "source": "const Auth  = require('./auth');",
+            "hits": 1,
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "exports.register = (plugin, options, next) => {",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "",
+            "miss": false
+          },
+          "5": {
+            "source": "  plugin.route([",
+            "miss": false
+          },
+          "6": {
+            "source": "    { method: 'POST', path: '/login',  config: Auth.login },",
+            "miss": false
+          },
+          "7": {
+            "source": "    { method: 'GET' , path: '/logout', config: Auth.logout }",
+            "miss": false
+          },
+          "8": {
+            "source": "  ]);",
+            "miss": false
+          },
+          "9": {
+            "source": "",
+            "miss": false
+          },
+          "10": {
+            "source": "  next();",
+            "hits": 1,
+            "miss": false
+          },
+          "11": {
+            "source": "};",
+            "miss": false
+          },
+          "12": {
+            "source": "",
+            "miss": false
+          },
+          "13": {
+            "source": "exports.register.attributes = {",
+            "hits": 1,
+            "miss": false
+          },
+          "14": {
+            "source": "  name: 'auth-api'",
+            "miss": false
+          },
+          "15": {
+            "source": "};",
+            "miss": false
+          },
+          "16": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "api",
+          "auth"
+        ],
+        "basename": "index.js",
+        "percentClass": "high",
+        "dirname": "api/auth/"
+      },
+      {
+        "filename": "api/users/index.js",
+        "percent": "100",
+        "hits": 13,
+        "misses": 0,
+        "sloc": 13,
+        "source": {
+          "1": {
+            "source": "const Users = require('./users');",
+            "hits": 1,
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "exports.register = (plugin, options, next) => {",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "",
+            "miss": false
+          },
+          "5": {
+            "source": "  plugin.route([",
+            "miss": false
+          },
+          "6": {
+            "source": "    { method: 'GET', path: '/', config: Users.list },",
+            "miss": false
+          },
+          "7": {
+            "source": "    { method: 'POST', path: '/', config: Users.create },",
+            "miss": false
+          },
+          "8": {
+            "source": "    { method: 'PUT', path: '/{id}', config: Users.update },",
+            "miss": false
+          },
+          "9": {
+            "source": "    { method: 'DELETE', path: '/{id}', config: Users.delete }",
+            "miss": false
+          },
+          "10": {
+            "source": "  ]);",
+            "miss": false
+          },
+          "11": {
+            "source": "",
+            "miss": false
+          },
+          "12": {
+            "source": "  next();",
+            "hits": 1,
+            "miss": false
+          },
+          "13": {
+            "source": "};",
+            "miss": false
+          },
+          "14": {
+            "source": "",
+            "miss": false
+          },
+          "15": {
+            "source": "exports.register.attributes = {",
+            "hits": 1,
+            "miss": false
+          },
+          "16": {
+            "source": "  name: 'users-api'",
+            "miss": false
+          },
+          "17": {
+            "source": "};",
+            "miss": false
+          },
+          "18": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "api",
+          "users"
+        ],
+        "basename": "index.js",
+        "percentClass": "high",
+        "dirname": "api/users/"
+      },
+      {
+        "filename": "api/users/users.js",
+        "percent": "94.12",
+        "hits": 64,
+        "misses": 4,
+        "sloc": 68,
+        "source": {
+          "1": {
+            "source": "'use strict';",
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "const Boom  = require('boom');",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "const Joi   = require('joi');",
+            "hits": 1,
+            "miss": false
+          },
+          "5": {
+            "source": "",
+            "miss": false
+          },
+          "6": {
+            "source": "// Minimum 8 chars total with at least one upper case, one lower case and a digit",
+            "miss": false
+          },
+          "7": {
+            "source": "const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d\\W]{8,255}$/;",
+            "hits": 1,
+            "miss": false
+          },
+          "8": {
+            "source": "",
+            "miss": false
+          },
+          "9": {
+            "source": "module.exports.list = {",
+            "hits": 1,
+            "miss": false
+          },
+          "10": {
+            "source": "  tags: ['api', 'users'],",
+            "miss": false
+          },
+          "11": {
+            "source": "  description: 'List users',",
+            "miss": false
+          },
+          "12": {
+            "source": "  notes: 'List users with pagination',",
+            "miss": false
+          },
+          "13": {
+            "source": "  validate: {",
+            "miss": false
+          },
+          "14": {
+            "source": "    query: {",
+            "miss": false
+          },
+          "15": {
+            "source": "      page: Joi.number().integer().min(1).max(100).default(1),",
+            "miss": false
+          },
+          "16": {
+            "source": "      pageSize: Joi.number().integer().min(1).max(100).default(30),",
+            "miss": false
+          },
+          "17": {
+            "source": "      order: Joi.string().valid('name', 'email', '\"createdAt\" desc', '\"createdAt\"').default('name')",
+            "miss": false
+          },
+          "18": {
+            "source": "    }",
+            "miss": false
+          },
+          "19": {
+            "source": "  },",
+            "miss": false
+          },
+          "20": {
+            "source": "  handler: function (request, reply) {",
+            "miss": false
+          },
+          "21": {
+            "source": "    return reply(Boom.notImplemented());",
+            "chunks": [
+              {
+                "source": "    "
+              },
+              {
+                "source": "return reply(Boom.notImplemented());",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "22": {
+            "source": "  }",
+            "miss": false
+          },
+          "23": {
+            "source": "};",
+            "miss": false
+          },
+          "24": {
+            "source": "",
+            "miss": false
+          },
+          "25": {
+            "source": "module.exports.create = {",
+            "hits": 1,
+            "miss": false
+          },
+          "26": {
+            "source": "  tags: ['api', 'users'],",
+            "miss": false
+          },
+          "27": {
+            "source": "  description: 'Create a new user',",
+            "miss": false
+          },
+          "28": {
+            "source": "  notes: 'Create a new user (non-admin) with name, email and password.',",
+            "miss": false
+          },
+          "29": {
+            "source": "  validate: {",
+            "miss": false
+          },
+          "30": {
+            "source": "    payload: {",
+            "miss": false
+          },
+          "31": {
+            "source": "      name: Joi.string().min(2).max(255).required(),",
+            "miss": false
+          },
+          "32": {
+            "source": "      email: Joi.string().email().required(),",
+            "miss": false
+          },
+          "33": {
+            "source": "      password: Joi.string().regex(passwordRegex).required(),",
+            "miss": false
+          },
+          "34": {
+            "source": "      passwordConfirmation: Joi.string().min(8).max(200).required().valid(Joi.ref('password'))",
+            "miss": false
+          },
+          "35": {
+            "source": "    }",
+            "miss": false
+          },
+          "36": {
+            "source": "  },",
+            "miss": false
+          },
+          "37": {
+            "source": "  handler: function (request, reply) {",
+            "miss": false
+          },
+          "38": {
+            "source": "    return reply(Boom.notImplemented());",
+            "chunks": [
+              {
+                "source": "    "
+              },
+              {
+                "source": "return reply(Boom.notImplemented());",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "39": {
+            "source": "  }",
+            "miss": false
+          },
+          "40": {
+            "source": "};",
+            "miss": false
+          },
+          "41": {
+            "source": "",
+            "miss": false
+          },
+          "42": {
+            "source": "module.exports.update = {",
+            "hits": 1,
+            "miss": false
+          },
+          "43": {
+            "source": "  tags: ['api', 'users'],",
+            "miss": false
+          },
+          "44": {
+            "source": "  description: 'Update user',",
+            "miss": false
+          },
+          "45": {
+            "source": "  notes: 'Change user\\'s password',",
+            "miss": false
+          },
+          "46": {
+            "source": "  validate: {",
+            "miss": false
+          },
+          "47": {
+            "source": "    params: {",
+            "miss": false
+          },
+          "48": {
+            "source": "      id: Joi.string().guid()",
+            "miss": false
+          },
+          "49": {
+            "source": "    },",
+            "miss": false
+          },
+          "50": {
+            "source": "    payload: Joi.object()",
+            "miss": false
+          },
+          "51": {
+            "source": "      .keys({",
+            "miss": false
+          },
+          "52": {
+            "source": "        password: Joi.string().regex(passwordRegex).optional(),",
+            "miss": false
+          },
+          "53": {
+            "source": "        passwordConfirmation: Joi.string().valid(Joi.ref('password'))",
+            "miss": false
+          },
+          "54": {
+            "source": "      })",
+            "miss": false
+          },
+          "55": {
+            "source": "      .with('password', 'passwordConfirmation')",
+            "miss": false
+          },
+          "56": {
+            "source": "  },",
+            "miss": false
+          },
+          "57": {
+            "source": "  handler: function (request, reply) {",
+            "miss": false
+          },
+          "58": {
+            "source": "    return reply(Boom.notImplemented());",
+            "chunks": [
+              {
+                "source": "    "
+              },
+              {
+                "source": "return reply(Boom.notImplemented());",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "59": {
+            "source": "  }",
+            "miss": false
+          },
+          "60": {
+            "source": "};",
+            "miss": false
+          },
+          "61": {
+            "source": "",
+            "miss": false
+          },
+          "62": {
+            "source": "module.exports.delete = {",
+            "hits": 1,
+            "miss": false
+          },
+          "63": {
+            "source": "  tags: ['api', 'users'],",
+            "miss": false
+          },
+          "64": {
+            "source": "  description: 'Delete user',",
+            "miss": false
+          },
+          "65": {
+            "source": "  notes: 'Delete user by ID (soft delete)',",
+            "miss": false
+          },
+          "66": {
+            "source": "  validate: {",
+            "miss": false
+          },
+          "67": {
+            "source": "    params: {",
+            "miss": false
+          },
+          "68": {
+            "source": "      id: Joi.string().guid()",
+            "miss": false
+          },
+          "69": {
+            "source": "    }",
+            "miss": false
+          },
+          "70": {
+            "source": "  },",
+            "miss": false
+          },
+          "71": {
+            "source": "  handler: function (request, reply) {",
+            "miss": false
+          },
+          "72": {
+            "source": "    return reply(Boom.notImplemented());",
+            "chunks": [
+              {
+                "source": "    "
+              },
+              {
+                "source": "return reply(Boom.notImplemented());",
+                "miss": "never"
+              }
+            ],
+            "miss": true
+          },
+          "73": {
+            "source": "  }",
+            "miss": false
+          },
+          "74": {
+            "source": "};",
+            "miss": false
+          },
+          "75": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "api",
+          "users"
+        ],
+        "basename": "users.js",
+        "percentClass": "high",
+        "dirname": "api/users/"
+      },
+      {
+        "filename": "config/env.js",
+        "percent": "72.73",
+        "hits": 8,
+        "misses": 3,
+        "sloc": 11,
+        "source": {
+          "1": {
+            "source": "const envKey = key => {",
+            "hits": 1,
+            "miss": false
+          },
+          "2": {
+            "source": "  const env = process.env.NODE_ENV || 'development';",
+            "chunks": [
+              {
+                "source": "  const env = "
+              },
+              {
+                "source": "process.env.NODE_ENV",
+                "miss": "true"
+              },
+              {
+                "source": " || "
+              },
+              {
+                "source": "'development'",
+                "miss": "never"
+              },
+              {
+                "source": ";"
+              }
+            ],
+            "miss": true
+          },
+          "3": {
+            "source": "",
+            "miss": false
+          },
+          "4": {
+            "source": "  const configuration = {",
+            "hits": 4,
+            "miss": false
+          },
+          "5": {
+            "source": "    host: process.env.HOST,",
+            "miss": false
+          },
+          "6": {
+            "source": "    port: process.env.PORT || 80,",
+            "chunks": [
+              {
+                "source": "    port: "
+              },
+              {
+                "source": "process.env.PORT",
+                "miss": "true"
+              },
+              {
+                "source": " || "
+              },
+              {
+                "source": "80",
+                "miss": "never"
+              },
+              {
+                "source": ","
+              }
+            ],
+            "miss": true
+          },
+          "7": {
+            "source": "    securePort: process.env.SSL_PORT || 443,",
+            "chunks": [
+              {
+                "source": "    securePort: "
+              },
+              {
+                "source": "process.env.SSL_PORT",
+                "miss": "true"
+              },
+              {
+                "source": " || "
+              },
+              {
+                "source": "443",
+                "miss": "never"
+              },
+              {
+                "source": ","
+              }
+            ],
+            "miss": true
+          },
+          "8": {
+            "source": "    jwt_secret: process.env.JWT_SECRET",
+            "miss": false
+          },
+          "9": {
+            "source": "  };",
+            "miss": false
+          },
+          "10": {
+            "source": "",
+            "miss": false
+          },
+          "11": {
+            "source": "  return configuration[key];",
+            "hits": 4,
+            "miss": false
+          },
+          "12": {
+            "source": "};",
+            "miss": false
+          },
+          "13": {
+            "source": "",
+            "miss": false
+          },
+          "14": {
+            "source": "module.exports = envKey;",
+            "hits": 1,
+            "miss": false
+          },
+          "15": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "config"
+        ],
+        "basename": "env.js",
+        "percentClass": "medium",
+        "dirname": "config/"
+      },
+      {
+        "filename": "config/manifest.js",
+        "percent": "99.15",
+        "hits": 117,
+        "misses": 1,
+        "sloc": 118,
+        "source": {
+          "1": {
+            "source": "const envKey    = require('./env');",
+            "hits": 1,
+            "miss": false
+          },
+          "2": {
+            "source": "const Path      = require('path');",
+            "hits": 1,
+            "miss": false
+          },
+          "3": {
+            "source": "const fs        = require('fs');",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "",
+            "miss": false
+          },
+          "5": {
+            "source": "const manifest = {",
+            "hits": 1,
+            "miss": false
+          },
+          "6": {
+            "source": "  server: {",
+            "miss": false
+          },
+          "7": {
+            "source": "    debug: {request: [ 'error' ]},",
+            "miss": false
+          },
+          "8": {
+            "source": "    cache: {engine: require('catbox-redis')}",
+            "miss": false
+          },
+          "9": {
+            "source": "  },",
+            "miss": false
+          },
+          "10": {
+            "source": "  connections: [{",
+            "miss": false
+          },
+          "11": {
+            "source": "    host: envKey('host'),",
+            "miss": false
+          },
+          "12": {
+            "source": "    port: envKey('port'),",
+            "miss": false
+          },
+          "13": {
+            "source": "    routes: {",
+            "miss": false
+          },
+          "14": {
+            "source": "      cors: {",
+            "miss": false
+          },
+          "15": {
+            "source": "        origin: [ '*' ],",
+            "miss": false
+          },
+          "16": {
+            "source": "        additionalExposedHeaders: [",
+            "miss": false
+          },
+          "17": {
+            "source": "          'X-RateLimit-Limit',",
+            "miss": false
+          },
+          "18": {
+            "source": "          'X-RateLimit-Remaining',",
+            "miss": false
+          },
+          "19": {
+            "source": "          'X-RateLimit-Reset'",
+            "miss": false
+          },
+          "20": {
+            "source": "        ]",
+            "miss": false
+          },
+          "21": {
+            "source": "      },",
+            "miss": false
+          },
+          "22": {
+            "source": "      security: true",
+            "miss": false
+          },
+          "23": {
+            "source": "    },",
+            "miss": false
+          },
+          "24": {
+            "source": "    router: {stripTrailingSlash: true},",
+            "miss": false
+          },
+          "25": {
+            "source": "    labels: [ 'api' ]",
+            "miss": false
+          },
+          "26": {
+            "source": "  }, {",
+            "miss": false
+          },
+          "27": {
+            "source": "    host: envKey('host'),",
+            "miss": false
+          },
+          "28": {
+            "source": "    port: envKey('securePort'),",
+            "miss": false
+          },
+          "29": {
+            "source": "    tls: {",
+            "miss": false
+          },
+          "30": {
+            "source": "      key: fs.readFileSync('config/.keys/key.pem'),",
+            "miss": false
+          },
+          "31": {
+            "source": "      cert: fs.readFileSync('config/.keys/cert.pem')",
+            "miss": false
+          },
+          "32": {
+            "source": "",
+            "miss": false
+          },
+          "33": {
+            "source": "   // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert",
+            "miss": false
+          },
+          "34": {
+            "source": "    },",
+            "miss": false
+          },
+          "35": {
+            "source": "    routes: {",
+            "miss": false
+          },
+          "36": {
+            "source": "      cors: {",
+            "miss": false
+          },
+          "37": {
+            "source": "        origin: [ '*' ],",
+            "miss": false
+          },
+          "38": {
+            "source": "        additionalExposedHeaders: [",
+            "miss": false
+          },
+          "39": {
+            "source": "          'X-RateLimit-Limit',",
+            "miss": false
+          },
+          "40": {
+            "source": "          'X-RateLimit-Remaining',",
+            "miss": false
+          },
+          "41": {
+            "source": "          'X-RateLimit-Reset'",
+            "miss": false
+          },
+          "42": {
+            "source": "        ]",
+            "miss": false
+          },
+          "43": {
+            "source": "      },",
+            "miss": false
+          },
+          "44": {
+            "source": "      security: true",
+            "miss": false
+          },
+          "45": {
+            "source": "    }",
+            "miss": false
+          },
+          "46": {
+            "source": "  }],",
+            "miss": false
+          },
+          "47": {
+            "source": "  registrations: [{",
+            "miss": false
+          },
+          "48": {
+            "source": "    plugin: {",
+            "miss": false
+          },
+          "49": {
+            "source": "      register: './plugins/redis',",
+            "miss": false
+          },
+          "50": {
+            "source": "      options: {",
+            "miss": false
+          },
+          "51": {
+            "source": "        partition: 'cache',",
+            "miss": false
+          },
+          "52": {
+            "source": "        host: '127.0.0.1', // default",
+            "miss": false
+          },
+          "53": {
+            "source": "        port: 6379,      // default",
+            "miss": false
+          },
+          "54": {
+            "source": "        password: ''",
+            "miss": false
+          },
+          "55": {
+            "source": "      }",
+            "miss": false
+          },
+          "56": {
+            "source": "    }",
+            "miss": false
+          },
+          "57": {
+            "source": "  }, {",
+            "miss": false
+          },
+          "58": {
+            "source": "    plugin: {",
+            "miss": false
+          },
+          "59": {
+            "source": "      register: 'hapi-rate-limit',",
+            "miss": false
+          },
+          "60": {
+            "source": "      options: {",
+            "miss": false
+          },
+          "61": {
+            "source": "        userLimit: 500,",
+            "miss": false
+          },
+          "62": {
+            "source": "        userCache: {",
+            "miss": false
+          },
+          "63": {
+            "source": "          expiresIn: 1000 * 60 * 5 // 5 minutes",
+            "miss": false
+          },
+          "64": {
+            "source": "        },",
+            "miss": false
+          },
+          "65": {
+            "source": "        pathLimit: false,",
+            "miss": false
+          },
+          "66": {
+            "source": "        pathCache: {",
+            "miss": false
+          },
+          "67": {
+            "source": "          expiresIn: 1000 * 60 // 1 min",
+            "miss": false
+          },
+          "68": {
+            "source": "        }",
+            "miss": false
+          },
+          "69": {
+            "source": "      }",
+            "miss": false
+          },
+          "70": {
+            "source": "    }",
+            "miss": false
+          },
+          "71": {
+            "source": "  }, {",
+            "miss": false
+          },
+          "72": {
+            "source": "    plugin: './api/auth',",
+            "miss": false
+          },
+          "73": {
+            "source": "    options: { routes: { prefix: '/auth' }}",
+            "miss": false
+          },
+          "74": {
+            "source": "  }, {",
+            "miss": false
+          },
+          "75": {
+            "source": "    plugin: './api/users',",
+            "miss": false
+          },
+          "76": {
+            "source": "    options: { routes: { prefix: '/api/users' }}",
+            "miss": false
+          },
+          "77": {
+            "source": "  }, {",
+            "miss": false
+          },
+          "78": {
+            "source": "    plugin: {",
+            "miss": false
+          },
+          "79": {
+            "source": "      register: 'good',",
+            "miss": false
+          },
+          "80": {
+            "source": "      options: {",
+            "miss": false
+          },
+          "81": {
+            "source": "        ops: false,",
+            "miss": false
+          },
+          "82": {
+            "source": "        reporters: {",
+            "miss": false
+          },
+          "83": {
+            "source": "          console: [{",
+            "miss": false
+          },
+          "84": {
+            "source": "            module: 'good-console'",
+            "miss": false
+          },
+          "85": {
+            "source": "          }, 'stdout']",
+            "miss": false
+          },
+          "86": {
+            "source": "        }",
+            "miss": false
+          },
+          "87": {
+            "source": "      }",
+            "miss": false
+          },
+          "88": {
+            "source": "    }",
+            "miss": false
+          },
+          "89": {
+            "source": "  }]",
+            "miss": false
+          },
+          "90": {
+            "source": "};",
+            "miss": false
+          },
+          "91": {
+            "source": "",
+            "miss": false
+          },
+          "92": {
+            "source": "if (process.env.NODE_ENV !== 'production') {",
+            "chunks": [
+              {
+                "source": "if ("
+              },
+              {
+                "source": "process.env.NODE_ENV !== 'production'",
+                "miss": "true"
+              },
+              {
+                "source": ") {"
+              }
+            ],
+            "hits": 1,
+            "miss": true
+          },
+          "93": {
+            "source": "",
+            "miss": false
+          },
+          "94": {
+            "source": "  // Display the routes table on startup",
+            "miss": false
+          },
+          "95": {
+            "source": "  manifest.registrations.push({",
+            "hits": 1,
+            "miss": false
+          },
+          "96": {
+            "source": "    'plugin': {",
+            "miss": false
+          },
+          "97": {
+            "source": "      'register': 'blipp',",
+            "miss": false
+          },
+          "98": {
+            "source": "      'options': {}",
+            "miss": false
+          },
+          "99": {
+            "source": "    }",
+            "miss": false
+          },
+          "100": {
+            "source": "  });",
+            "miss": false
+          },
+          "101": {
+            "source": "",
+            "miss": false
+          },
+          "102": {
+            "source": "  // Enable Swagger Documentation",
+            "miss": false
+          },
+          "103": {
+            "source": "  manifest.registrations.push({",
+            "hits": 1,
+            "miss": false
+          },
+          "104": {
+            "source": "    plugin: {",
+            "miss": false
+          },
+          "105": {
+            "source": "      register: './plugins/swagger',",
+            "miss": false
+          },
+          "106": {
+            "source": "      options: {",
+            "miss": false
+          },
+          "107": {
+            "source": "        info: {",
+            "miss": false
+          },
+          "108": {
+            "source": "          'title': 'API Documentation',",
+            "miss": false
+          },
+          "109": {
+            "source": "          'description': `(${process.env.NODE_ENV} environment)`,",
+            "miss": false
+          },
+          "110": {
+            "source": "          'version': require('./../package').version",
+            "miss": false
+          },
+          "111": {
+            "source": "        },",
+            "miss": false
+          },
+          "112": {
+            "source": "        securityDefinitions: {",
+            "miss": false
+          },
+          "113": {
+            "source": "          Bearer: {",
+            "miss": false
+          },
+          "114": {
+            "source": "            type: 'apiKey',",
+            "miss": false
+          },
+          "115": {
+            "source": "            name: 'Authorization',",
+            "miss": false
+          },
+          "116": {
+            "source": "            in: 'header'",
+            "miss": false
+          },
+          "117": {
+            "source": "          }",
+            "miss": false
+          },
+          "118": {
+            "source": "        }",
+            "miss": false
+          },
+          "119": {
+            "source": "      }",
+            "miss": false
+          },
+          "120": {
+            "source": "    }",
+            "miss": false
+          },
+          "121": {
+            "source": "  });",
+            "miss": false
+          },
+          "122": {
+            "source": "}",
+            "miss": false
+          },
+          "123": {
+            "source": "",
+            "miss": false
+          },
+          "124": {
+            "source": "module.exports = manifest;",
+            "hits": 1,
+            "miss": false
+          },
+          "125": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "config"
+        ],
+        "basename": "manifest.js",
+        "percentClass": "high",
+        "dirname": "config/"
+      },
+      {
+        "filename": "plugins/redis.js",
+        "percent": "91.67",
+        "hits": 11,
+        "misses": 1,
+        "sloc": 12,
+        "source": {
+          "1": {
+            "source": "'use strict';",
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "const Catbox = require('catbox');",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "",
+            "miss": false
+          },
+          "5": {
+            "source": "exports.register = function (server, pluginOptions, next) {",
+            "hits": 1,
+            "miss": false
+          },
+          "6": {
+            "source": "",
+            "miss": false
+          },
+          "7": {
+            "source": "  var client = new Catbox.Client(require('catbox-redis'), pluginOptions);",
+            "miss": false
+          },
+          "8": {
+            "source": "  var instance = client.start(err => {",
+            "hits": 1,
+            "miss": false
+          },
+          "9": {
+            "source": "    if (err) {next (err);}",
+            "hits": 0,
+            "miss": true
+          },
+          "10": {
+            "source": "    next();",
+            "hits": 1,
+            "miss": false
+          },
+          "11": {
+            "source": "  });",
+            "miss": false
+          },
+          "12": {
+            "source": "};",
+            "miss": false
+          },
+          "13": {
+            "source": "",
+            "miss": false
+          },
+          "14": {
+            "source": "exports.register.attributes = {",
+            "hits": 1,
+            "miss": false
+          },
+          "15": {
+            "source": "  name: 'redis-client'",
+            "miss": false
+          },
+          "16": {
+            "source": "};",
+            "miss": false
+          },
+          "17": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "plugins"
+        ],
+        "basename": "redis.js",
+        "percentClass": "high",
+        "dirname": "plugins/"
+      },
+      {
+        "filename": "plugins/swagger.js",
+        "percent": "100",
+        "hits": 19,
+        "misses": 0,
+        "sloc": 19,
+        "source": {
+          "1": {
+            "source": "'use strict';",
+            "miss": false
+          },
+          "2": {
+            "source": "",
+            "miss": false
+          },
+          "3": {
+            "source": "const Inert = require('inert');",
+            "hits": 1,
+            "miss": false
+          },
+          "4": {
+            "source": "const Vision = require('vision');",
+            "hits": 1,
+            "miss": false
+          },
+          "5": {
+            "source": "const HapiSwagger = require('hapi-swagger');",
+            "hits": 1,
+            "miss": false
+          },
+          "6": {
+            "source": "",
+            "miss": false
+          },
+          "7": {
+            "source": "exports.register = function (server, pluginOptions, next) {",
+            "hits": 1,
+            "miss": false
+          },
+          "8": {
+            "source": "  server.register([",
+            "miss": false
+          },
+          "9": {
+            "source": "    Inert,",
+            "miss": false
+          },
+          "10": {
+            "source": "    Vision,",
+            "miss": false
+          },
+          "11": {
+            "source": "    {",
+            "miss": false
+          },
+          "12": {
+            "source": "      'register': HapiSwagger,",
+            "miss": false
+          },
+          "13": {
+            "source": "      'options': pluginOptions",
+            "miss": false
+          },
+          "14": {
+            "source": "    }",
+            "miss": false
+          },
+          "15": {
+            "source": "  ], (err) => {",
+            "miss": false
+          },
+          "16": {
+            "source": "    next(err);",
+            "miss": false
+          },
+          "17": {
+            "source": "  });",
+            "miss": false
+          },
+          "18": {
+            "source": "};",
+            "miss": false
+          },
+          "19": {
+            "source": "",
+            "miss": false
+          },
+          "20": {
+            "source": "exports.register.attributes = {",
+            "hits": 1,
+            "miss": false
+          },
+          "21": {
+            "source": "  name: 'swagger'",
+            "miss": false
+          },
+          "22": {
+            "source": "};",
+            "miss": false
+          },
+          "23": {
+            "source": "",
+            "miss": false
+          }
+        },
+        "segments": [
+          "plugins"
+        ],
+        "basename": "swagger.js",
+        "percentClass": "high",
+        "dirname": "plugins/"
+      }
+    ]
+  },
+  "lint": [
+    {
+      "filename": "api/auth/auth.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "api/auth/index.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "api/users/index.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "api/users/users.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "config/env.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "config/manifest.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "plugins/redis.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "plugins/swagger.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    },
+    {
+      "filename": "server.js",
+      "errors": [],
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "errorClass": "high",
+      "warningClass": "high"
+    }
+  ]
+}

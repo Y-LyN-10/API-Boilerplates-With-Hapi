@@ -5,7 +5,8 @@
   "repository": "http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "eslint . --fix && lab -c -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json"
   },
   "keywords": [
     "Hapi",
@@ -16,6 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "blipp": "^2.3.0",
+    "code": "^4.0.0",
     "hapi-swagger": "^7.7.0",
     "inert": "^4.1.0",
     "lab": "^12.1.0",
