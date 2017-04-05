@@ -13,15 +13,27 @@ const manifest = {
       port: envKey('port'),
       routes: {
         cors: true,
-        security: true,
-        additionalExposedHeaders: [
-          'X-RateLimit-Limit',
-          'X-RateLimit-Remaining',
-          'X-RateLimit-Reset'
-        ]
+        security: true
+     // additionalExposedHeaders: [
+     //   'X-RateLimit-Limit',
+     //   'X-RateLimit-Remaining',
+     //   'X-RateLimit-Reset'
+     // ]
       },
       router: {stripTrailingSlash: true},
       labels: [ 'api' ]
+    }, {
+      host: envKey('host'),
+      port: envKey('securePort'),
+      tls: {
+        key: fs.readFileSync('config/keys/key.pem'),
+        cert: fs.readFileSync('config/keys/cert.pem')
+     // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+      },
+      routes: {
+        cors: true,
+        security: true
+      }
     }
   ],
   registrations: [

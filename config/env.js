@@ -3,7 +3,8 @@ const envKey = key => {
 
   const configuration = {
     host: process.env.HOST,
-    port: process.env.PORT,
+    port: process.env.PORT || 80,
+    securePort: process.env.SSL_PORT || 443,
     jwt_secret: process.env.JWT_SECRET
   };
 
