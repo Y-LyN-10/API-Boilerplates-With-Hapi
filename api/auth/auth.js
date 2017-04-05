@@ -8,13 +8,6 @@ module.exports.login = {
   description: 'Login',
   auth: false,
   notes: 'Autnenticate with email and password to request JWT access token',
-  plugins: {
-    // will be working after Redis is installed
-    'hapi-attempts-limiter': {
-      limit: 3,
-      duration: 120 // in seconds
-    }
-  },
   validate: {
     payload: Joi.object()
       .keys({

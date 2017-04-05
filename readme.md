@@ -6,7 +6,7 @@ General idea and todo-list:
 * :white_check_mark: Composable plugins with Glue
 * :white_check_mark: Good API Logging
 * :white_check_mark: Environment Configuration
-* :white_medium_square: Caching with Redis
+* :white_check_mark: Caching with Redis
 * :white_medium_square: Security Enhancements
   - :white_check_mark: Secure headers (cors, xss, xframe, nosniff, etc...)
   - :white_check_mark:: SSL Support
