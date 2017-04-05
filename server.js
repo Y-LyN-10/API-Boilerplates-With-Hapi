@@ -8,7 +8,8 @@ const manifest = require('./config/manifest');
 Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {
   if (err) { throw err; } else {
 
-    server.log(['info', 'server'],
+    server.log(
+      ['info', 'server'],
       `Installed plugins: ${Object.keys(server.plugins).join(', ')}`
     );
 
@@ -25,13 +26,14 @@ Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {
         if (startErr) { throw startErr; }
 
         // Log to the console the host and port info
-        server.connections.forEach(function(connection) {
-          server.log(['info', 'server'],
-            `Server is listening on ${connection.info.uri} in ${process.env.NODE_ENV} mode`
+        server.connections.forEach(connection => {
+          server.log(
+            ['info', 'server'],
+            `server is listening on ${connection.info.uri} in ${process.env.NODE_ENV} mode`
           );
         });
       });
-      
     });
+
   }
 });

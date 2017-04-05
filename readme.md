@@ -9,7 +9,7 @@ General idea and todo-list:
 * :white_medium_square: Caching with Redis
 * :white_medium_square: Security Enhancements
   - :white_check_mark: Secure headers (cors, xss, xframe, nosniff, etc...)
-  - :white_medium_square: SSL Support
+  - :white_check_mark:: SSL Support
   - :white_check_mark: Limit number of requests
   - :white_medium_square: Limit number of failed login attempts
 * :white_check_mark: Eslint Configuration
