@@ -1,4 +1,5 @@
 Quick start API with Hapi
+===
 
 General idea and todo-list:
 
@@ -14,7 +15,7 @@ General idea and todo-list:
   - :white_check_mark: Limit number of failed login attempts
 * :white_check_mark: Eslint Configuration
 * :white_check_mark: Testing with Lab.js
-* :white_check_mark: Swagger Documentatio
+* :white_check_mark: Swagger Documentation
 * :white_check_mark: Authentication & Authorization with JWT (mocked users db)
 * :white_check_mark: Session management with yar & Redis (mocked users db)
 
