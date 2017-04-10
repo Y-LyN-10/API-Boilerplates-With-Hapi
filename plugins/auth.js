@@ -8,7 +8,7 @@ const uuid = require('uuid/v4');
 exports.register = function (server, pluginOptions, next) {
 
   const validateToken = function (decoded, request, callback) {
-    if(request.yar.get(decoded.id)) {
+    if (request.yar.get(decoded.id)) {
       callback(null, true);
     } else {
       callback(null, false);
@@ -63,8 +63,9 @@ exports.register = function (server, pluginOptions, next) {
           .or('refreshToken', ['email', 'password'])
       },
       handler: function (request, reply) {
+
         // TODO: Replace fake users with real model & database
-        
+
         const User = require('../db/models/user.model');
 
         if (request.auth.isAuthenticated) {
@@ -76,17 +77,17 @@ exports.register = function (server, pluginOptions, next) {
         }
 
         const { id, email, name, password } = User.findByEmail(request.payload.email);
-        
+
         if (request.payload.password !== password) {
           return reply(Boom.unauthorized('Email or Password invalid...'));
         }
 
         const sid = uuid();
-        const user = {id:5, sid, email, name, password};        
+        const user = {id:5, sid, email, name, password};
         request.yar.set(user.id.toString(), user);
-        
+
         generateTokens(user, (tokens) => {
-            return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+          return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
         });
 
       }
@@ -112,6 +113,7 @@ exports.register = function (server, pluginOptions, next) {
       email : user.email,
       name  : user.name,
       id    : user.id,
+
       // Scope determines user's access rules for auth
       scope : [ user.scope || user.isAdmin ? 'admin' : 'user' ]
     };
@@ -126,7 +128,7 @@ exports.register = function (server, pluginOptions, next) {
 
     done({ accessToken, refreshToken });
   }
-  
+
   next();
 };
 

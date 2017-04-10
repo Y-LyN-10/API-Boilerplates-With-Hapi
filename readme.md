@@ -7,7 +7,9 @@ General idea and todo-list:
 * :white_check_mark: Composable plugins with Glue
 * :white_check_mark: Good API Logging & Status Monitoring (optional)
 * :white_check_mark: Environment Configuration
+* :white_check_mark: Authentication & Authorization with JWT (mocked users db)
 * :white_check_mark: Caching with Redis
+* :white_check_mark: Session management with yar via Redis (mocked users db)
 * :white_check_mark: Security Enhancements
   - :white_check_mark: Secure headers (cors, xss, xframe, nosniff, etc...)
   - :white_check_mark: SSL Support
@@ -16,8 +18,6 @@ General idea and todo-list:
 * :white_check_mark: Eslint Configuration
 * :white_check_mark: Testing with Lab.js
 * :white_check_mark: Swagger Documentation
-* :white_check_mark: Authentication & Authorization with JWT (mocked users db)
-* :white_check_mark: Session management with yar & Redis (mocked users db)
 
 **Branching:**
 * :white_medium_square: Users Model & CRUD 

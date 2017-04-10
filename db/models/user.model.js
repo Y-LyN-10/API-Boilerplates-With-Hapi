@@ -1,6 +1,6 @@
 'use strict';
 
-// Temporary dababase mock to implement auth and session storage logic in a database-independent way 
+// Temporary dababase mock to implement auth and session storage logic in a database-independent way
 
 const users = [{
   id: 1,
