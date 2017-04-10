@@ -4,7 +4,7 @@ General idea and todo-list:
 
 **Base features:**
 * :white_check_mark: Composable plugins with Glue
-* :white_check_mark: Good API Logging
+* :white_check_mark: Good API Logging & Status Monitoring (optional)
 * :white_check_mark: Environment Configuration
 * :white_check_mark: Caching with Redis
 * :white_check_mark: Security Enhancements

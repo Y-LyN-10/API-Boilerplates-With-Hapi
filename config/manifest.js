@@ -125,7 +125,11 @@ if (process.env.NODE_ENV !== 'production') {
     }
   });
 
-  /* // App Status Monitoring. Works with a signle connection only
+  /* 
+
+  // App Status Monitoring. Works with a signle connection only.
+  // Run 'npm install hapijs-status-monitor --save' before using
+
   manifest.registrations.push({
     plugin: {
       register: 'hapijs-status-monitor',
@@ -135,7 +139,8 @@ if (process.env.NODE_ENV !== 'production') {
       }
     }
   }); 
-  .*/
+
+  */
   
   // Enable Swagger Documentation
   manifest.registrations.push({
