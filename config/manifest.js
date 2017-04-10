@@ -27,13 +27,14 @@ const manifest = {
       security: true
     },
     router: {stripTrailingSlash: true},
-    labels: ['api']
+    labels: [ 'api' ]
   }, {
     host: envKey('host'),
     port: envKey('securePort'),
     tls: {
       key: fs.readFileSync('config/.keys/key.pem'),
       cert: fs.readFileSync('config/.keys/cert.pem')
+
    // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
     },
     routes: {
@@ -125,7 +126,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
   });
 
-  /* 
+  /*
 
   // App Status Monitoring. Works with a signle connection only.
   // Run 'npm install hapijs-status-monitor --save' before using
@@ -138,10 +139,10 @@ if (process.env.NODE_ENV !== 'production') {
         connectionLabel: 'api'
       }
     }
-  }); 
+  });
 
   */
-  
+
   // Enable Swagger Documentation
   manifest.registrations.push({
     plugin: {
