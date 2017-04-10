@@ -16,7 +16,7 @@ General idea and todo-list:
 * :white_check_mark: Testing with Lab.js
 * :white_check_mark: Swagger Documentatio
 * :white_check_mark: Authentication & Authorization with JWT (mocked users db)
-* :white_medium_square: Session management with Redis (mocked users db)
+* :white_check_mark: Session management with yar & Redis (mocked users db)
 
 **Branching:**
 * :white_medium_square: Users Model & CRUD 
