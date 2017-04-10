@@ -3,28 +3,16 @@
 const JWT  = require('jsonwebtoken');
 const Boom = require('boom');
 const Joi  = require('joi');
-const Uuid = require('uuid');
+const uuid = require('uuid/v4');
 
 exports.register = function (server, pluginOptions, next) {
-  const cache = server.cache({ segment: 'sessions', expiresIn: 60 * 45 * 1000 });
-  server.app.cache = cache;
 
   const validateToken = function (decoded, request, callback) {
-    // TODO: Save sessions in Redis
-    
-    // const Session = request.server.plugins['hapi-sequelize'].webidscan.models.Session;
-
-    // Session.findOne({
-    //   where: {userId: decoded.id, expires: {$gt: new Date()}}
-    // }).then(session => {
-    //   if (!session) {
-    //     callback(null, false);
-    //   } else {
-    //     callback(null, true);
-    //   }
-    // });
-
-    callback(err, true); // always valid
+    if(request.yar.get(decoded.id)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
   };
 
   const verifyToken = function (decoded, request, callback) {
@@ -75,6 +63,8 @@ exports.register = function (server, pluginOptions, next) {
           .or('refreshToken', ['email', 'password'])
       },
       handler: function (request, reply) {
+        // TODO: Replace fake users with real model & database
+        
         const User = require('../db/models/user.model');
 
         if (request.auth.isAuthenticated) {
@@ -90,10 +80,11 @@ exports.register = function (server, pluginOptions, next) {
         if (request.payload.password !== password) {
           return reply(Boom.unauthorized('Email or Password invalid...'));
         }
-        
-        // TODO: Save session in Redis
 
-        const user = {id, email, name, password};
+        const sid = uuid();
+        const user = {id:5, sid, email, name, password};        
+        request.yar.set(user.id.toString(), user);
+        
         generateTokens(user, (tokens) => {
             return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
         });
@@ -110,8 +101,8 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
-        // TODO: Revoke session
-        return reply(Boom.notImplemented());
+        request.yar.clear(request.auth.credentials.id);
+        return reply('User successfully logged out');
       }
     }
   });
