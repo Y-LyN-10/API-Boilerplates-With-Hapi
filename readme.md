@@ -7,6 +7,7 @@ General idea and todo-list:
 * :white_check_mark: Composable plugins with Glue
 * :white_check_mark: Good API Logging & Status Monitoring (optional)
 * :white_check_mark: Environment Configuration
+* :white_medium_square: Authenticate with Google OAuth
 * :white_check_mark: Authentication & Authorization with JWT (mocked users db)
 * :white_check_mark: Caching with Redis
 * :white_check_mark: Session management with yar via Redis (mocked users db)

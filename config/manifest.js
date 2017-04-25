@@ -1,6 +1,6 @@
-const envKey    = require('./env');
-const Path      = require('path');
-const fs        = require('fs');
+const envKey = require('./env');
+const Path   = require('path');
+const fs     = require('fs');
 
 const manifest = {
   server: {
@@ -28,28 +28,30 @@ const manifest = {
     },
     router: {stripTrailingSlash: true},
     labels: [ 'api' ]
-  }, {
-    host: envKey('host'),
-    port: envKey('securePort'),
-    tls: {
-      key: fs.readFileSync('config/.keys/key.pem'),
-      cert: fs.readFileSync('config/.keys/cert.pem')
+  },
+   //              {
+   //  host: envKey('host'),
+   //  port: envKey('securePort'),
+   //  tls: {
+   //    key: fs.readFileSync('config/.keys/key.pem'),
+   //    cert: fs.readFileSync('config/.keys/cert.pem')
 
-   // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
-    },
-    routes: {
-      cors: {
-        origin: [ '*' ],
-        additionalExposedHeaders: [
-          'X-RateLimit-Limit',
-          'X-RateLimit-Remaining',
-          'X-RateLimit-Reset'
-        ]
-      },
-      security: true
-    },
-    router: {stripTrailingSlash: true}
-  }],
+   // // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+   //  },
+   //  routes: {
+   //    cors: {
+   //      origin: [ '*' ],
+   //      additionalExposedHeaders: [
+   //        'X-RateLimit-Limit',
+   //        'X-RateLimit-Remaining',
+   //        'X-RateLimit-Reset'
+   //      ]
+   //    },
+   //    security: true
+   //  },
+   //  router: {stripTrailingSlash: true}
+   //              }
+               ],
   registrations: [{
     plugin: {
       register: './plugins/redis',
@@ -67,7 +69,7 @@ const manifest = {
         maxCookieSize: 0, // force server-side storage
         cache: { cache: 'session' },
         cookieOptions: {
-          password: 'A1VUELoVYbq7P5YlBMYhvHrzw4H7Nm1bA6kZP20ng0Z4KuiKPnVguRLM',  // cookie password
+          password: process.env.JAR_SECRET,  // cookie password
           isSecure: false               // allow non HTTPS
         }
       }
@@ -96,6 +98,23 @@ const manifest = {
       register: './plugins/auth',
       options: {
         secret: envKey('jwt_secret')
+      }
+    }
+  }, {
+    plugin: {
+      // Attention: the provided example API key is configured for localhost:8181 only
+      register: "hapi-auth-google",
+      options: {
+        REDIRECT_URL: '/auth/google',
+        config: {
+          description: 'Google Auth Callback',
+          notes: 'Handled by hapi-auth-google plugin',
+          tags: ['api', 'auth', 'plugin']
+        },
+        handler: require('.././plugins/google-oauth'),
+        scope: ['https://www.googleapis.com/auth/plus.profile.emails.read',
+                'https://www.googleapis.com/auth/plus.login'],
+        BASE_URL: process.env.BASE_URL
       }
     }
   }, {
