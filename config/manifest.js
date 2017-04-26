@@ -14,7 +14,7 @@ const manifest = {
   },
   connections: [{
     host: envKey('host'),
-    port: envKey('port'),
+    port: envKey('port') || 80,
     routes: {
       cors: {
         origin: [ '*' ],
@@ -28,30 +28,27 @@ const manifest = {
     },
     router: {stripTrailingSlash: true},
     labels: [ 'api' ]
-  },
-   //              {
-   //  host: envKey('host'),
-   //  port: envKey('securePort'),
-   //  tls: {
-   //    key: fs.readFileSync('config/.keys/key.pem'),
-   //    cert: fs.readFileSync('config/.keys/cert.pem')
-
-   // // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
-   //  },
-   //  routes: {
-   //    cors: {
-   //      origin: [ '*' ],
-   //      additionalExposedHeaders: [
-   //        'X-RateLimit-Limit',
-   //        'X-RateLimit-Remaining',
-   //        'X-RateLimit-Reset'
-   //      ]
-   //    },
-   //    security: true
-   //  },
-   //  router: {stripTrailingSlash: true}
-   //              }
-               ],
+  }, {
+    host: envKey('host'),
+    port: 443,
+    tls: {
+      key: fs.readFileSync('config/.keys/key.pem'),
+      cert: fs.readFileSync('config/.keys/cert.pem')
+      // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+    },
+    routes: {
+      cors: {
+        origin: [ '*' ],
+        additionalExposedHeaders: [
+          'X-RateLimit-Limit',
+          'X-RateLimit-Remaining',
+          'X-RateLimit-Reset'
+        ]
+      },
+      security: true
+    },
+    router: {stripTrailingSlash: true}
+  }],
   registrations: [{
     plugin: {
       register: './plugins/redis',
@@ -102,7 +99,6 @@ const manifest = {
     }
   }, {
     plugin: {
-      // Attention: the provided example API key is configured for localhost:8181 only
       register: "hapi-auth-google",
       options: {
         REDIRECT_URL: '/auth/google',
@@ -114,7 +110,7 @@ const manifest = {
         handler: require('.././plugins/google-oauth'),
         scope: ['https://www.googleapis.com/auth/plus.profile.emails.read',
                 'https://www.googleapis.com/auth/plus.login'],
-        BASE_URL: process.env.BASE_URL
+        BASE_URL:'http://' + envKey('host') + ':80'
       }
     }
   }, {
@@ -135,8 +131,31 @@ const manifest = {
   }]
 };
 
-if (process.env.NODE_ENV !== 'production') {
+// hapi-auth-google can be registered only once, so if we have SSL connection, it's better to used it
+const sslConn = manifest.connections.find((conn) => conn.tls);
+if(sslConn){
+  manifest.registrations.map((r) => {
+    if(r.plugin.register === 'hapi-auth-google') {
+      return r.plugin.options.BASE_URL = 'https://' + sslConn.host + ':' + sslConn.port;
+    }
+  });
+}
 
+// App Status Monitoring. Works with a signle connection only.
+// Run 'npm install hapijs-status-monitor --save' before using
+if(manifest.connections.length === 1) {
+  manifest.registrations.push({
+    plugin: {
+      register: 'hapijs-status-monitor',
+      options: {
+        title: 'Example API Monitor',
+        connectionLabel: 'api'
+      }
+    }
+  });
+}
+  
+if (process.env.NODE_ENV !== 'production') {
   // Display the routes table on startup
   manifest.registrations.push({
     'plugin': {
@@ -144,23 +163,6 @@ if (process.env.NODE_ENV !== 'production') {
       'options': {}
     }
   });
-
-  /*
-
-  // App Status Monitoring. Works with a signle connection only.
-  // Run 'npm install hapijs-status-monitor --save' before using
-
-  manifest.registrations.push({
-    plugin: {
-      register: 'hapijs-status-monitor',
-      options: {
-        title: 'WebIDScan API',
-        connectionLabel: 'api'
-      }
-    }
-  });
-
-  */
 
   // Enable Swagger Documentation
   manifest.registrations.push({
