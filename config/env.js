@@ -5,6 +5,7 @@ const envKey = key => {
     host: process.env.HOST,
     port: process.env.PORT || 80,
     jwt_secret: process.env.JWT_SECRET,
+    jar_secret: process.env.JAR_SECRET,
     google_client_id: process.env.GOOGLE_CLIENT_ID,
     google_client_secret: process.env.GOOGLE_CLIENT_SECRET
   };
