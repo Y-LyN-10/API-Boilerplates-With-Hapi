@@ -66,7 +66,7 @@ const manifest = {
         maxCookieSize: 0, // force server-side storage
         cache: { cache: 'session' },
         cookieOptions: {
-          password: process.env.JAR_SECRET,  // cookie password
+          password: envKey('jar_sercret'),  // cookie password
           isSecure: false               // allow non HTTPS
         }
       }
