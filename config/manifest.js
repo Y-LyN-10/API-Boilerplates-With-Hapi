@@ -66,7 +66,7 @@ const manifest = {
         maxCookieSize: 0, // force server-side storage
         cache: { cache: 'session' },
         cookieOptions: {
-          password: envKey('jar_sercret'),  // cookie password
+          password: envKey('jar_secret'),  // cookie password
           isSecure: false               // allow non HTTPS
         }
       }
@@ -82,6 +82,23 @@ const manifest = {
         pathLimit: false,
         pathCache: {
           expiresIn: 1000 * 60 // 1 min
+        }
+      }
+    }
+  }, {
+    plugin: './api/users',
+    options: { routes: { prefix: '/api/users' }}
+  }, {
+    plugin: {
+      register: "hapi-mongo-models",
+      options: {
+        mongodb: {
+          uri: envKey('mongo_uri'),
+          options: {}
+        },
+        autoIndex: false,
+        models: {
+          User: "./db/models/user.js"
         }
       }
     }
@@ -113,9 +130,6 @@ const manifest = {
         BASE_URL:'http://' + envKey('host') + ':80'
       }
     }
-  }, {
-    plugin: './api/users',
-    options: { routes: { prefix: '/api/users' }}
   }, {
     plugin: {
       register: 'good',

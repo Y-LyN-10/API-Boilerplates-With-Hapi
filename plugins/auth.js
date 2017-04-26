@@ -30,7 +30,7 @@ exports.register = function (server, pluginOptions, next) {
   const authenticate = function(request, account, done) {
     const sid = uuid();
     account.sid = sid;
-    request.yar.set(account.id.toString(), {account});
+    request.yar.set(account._id.toString(), {account});
     
     server.methods.generateTokens(account, tokens => {
       done(tokens);
@@ -120,7 +120,7 @@ exports.register = function (server, pluginOptions, next) {
 
         // TODO: Replace fake users with real model & database
 
-        const User = require('../db/models/user.model');
+        const User = require('../db/models/user');
 
         // Validations
 

@@ -3,7 +3,7 @@ Quick start API with Hapi
 
 General idea and todo-list:
 
-**Base features:**
+**Base features:** (master branch)
 * :white_check_mark: Composable plugins with Glue
 * :white_check_mark: Good API Logging & Status Monitoring (optional)
 * :white_check_mark: Environment Configuration
@@ -23,6 +23,7 @@ General idea and todo-list:
 **Branching:**
 * :white_medium_square: Users Model & CRUD 
   - :white_medium_square: with Sequelize & Relational Database
-  - :white_medium_square: with MongoDB
+  - :white_medium_square: with MongoDB (with-mongodb git branch)
+    -:white_check_mark: Google Login
   
 * :white_medium_square: Neo4j Graph Database

@@ -15,31 +15,32 @@ module.exports = function(request, reply, tokens, profile) {
       agent     : request.headers['user-agent']
     };
 
-    const User = require('../db/models/user.model');
-    const user = User.findByEmail(session.email);
+    const User = request.server.plugins['hapi-mongo-models'].User;
 
-    console.log(session.email);
-    
-    // This user already exist in the database
-    if(user) {
-      request.server.methods.authenticate(request, user, tokens => {
-        return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
-      });
-    } else {
-      console.log(profile);
-      
-      User.create(profile, (err, user) => {
-        if(err) {
-          request.server.log([], err);
-          return reply(Boom.badRequest('Failed to create a user'));
-        }
+     User.findByEmail(session.email, (err, user) => {
+      if(err) {
+        request.server.log([], err);
+        return reply(Boom.badRequest());
+      }
 
+      // This user already exist in the database
+      if(user) {
         request.server.methods.authenticate(request, user, tokens => {
           return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
         });
-        
-      });
-    }
+      } else {
+        User.create(profile, (err, user) => {
+          if(err) {
+            request.server.log([], err);
+            return reply(Boom.badRequest('Failed to create a user'));
+          }
+
+          request.server.methods.authenticate(request, user, tokens => {
+            return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+          });
+        });
+      }
+    });
   } else {
     return reply(Boom.badRequest());
   }
