@@ -5,12 +5,14 @@ const Boom = require('boom');
 const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
-exports.register = function (server, pluginOptions, next) {  
+exports.register = function (server, pluginOptions, next) {
   const generateTokens = function(user, done) {
+    console.log('generate token for user', user);
+    
     let session = {
       email : user.email,
-      name  : user.name,
-      id    : user.id,
+      name  : user.firstName + ' ' + user.lastName,
+      id    : user._id,
 
       // Scope determines user's access rules for auth
       scope : [ user.scope || user.isAdmin ? 'admin' : 'user' ]
@@ -38,6 +40,8 @@ exports.register = function (server, pluginOptions, next) {
   }
   
   const validateToken = function (decoded, request, callback) {
+    console.log('decoded', decoded);
+    
     if (request.yar.get(decoded.id)) {
       callback(null, true);
     } else {
@@ -134,9 +138,9 @@ exports.register = function (server, pluginOptions, next) {
 
         let user = User.findByEmail(request.payload.email);
 
-        if (request.payload.password !== user.password) {
-          return reply(Boom.unauthorized('Email or Password invalid...'));
-        }
+        // if (request.payload.password !== user.password) {
+        //   return reply(Boom.unauthorized('Email or Password invalid...'));
+        // }
 
         server.methods.authenticate(request, user, tokens => {
           return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
