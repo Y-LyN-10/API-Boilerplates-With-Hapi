@@ -10,15 +10,32 @@ module.exports.list = {
   tags: ['api', 'users'],
   description: 'List users',
   notes: 'List users with pagination',
+  auth: {scope: [ 'admin' ]},
   validate: {
     query: {
-      page: Joi.number().integer().min(1).max(100).default(1),
-      pageSize: Joi.number().integer().min(1).max(100).default(30),
-      order: Joi.string().valid('name', 'email', '"createdAt" desc', '"createdAt"').default('name')
+      fields: Joi.string(),
+      sort: Joi.string().default('_id'),
+      limit: Joi.number().default(20),
+      page: Joi.number().default(1)
     }
   },
   handler: function (request, reply) {
-    return reply(Boom.notImplemented());
+    const User = request.server.plugins['hapi-mongo-models'].User;
+
+    const query = {};
+    const fields = request.query.fields;
+    const sort = request.query.sort;
+    const limit = request.query.limit;
+    const page = request.query.page;
+
+    User.pagedFind(query, fields, sort, limit, page, (err, results) => {
+
+      if (err) {
+        return reply(err);
+      }
+
+      return reply(results);
+    });
   }
 };
 

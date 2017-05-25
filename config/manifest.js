@@ -86,9 +86,6 @@ const manifest = {
       }
     }
   }, {
-    plugin: './api/users',
-    options: { routes: { prefix: '/api/users' }}
-  }, {
     plugin: {
       register: "hapi-mongo-models",
       options: {
@@ -130,6 +127,9 @@ const manifest = {
         BASE_URL:'http://' + envKey('host') + ':80'
       }
     }
+  }, {
+    plugin: './api/users',
+    options: { routes: { prefix: '/api/users' }}
   }, {
     plugin: {
       register: 'good',

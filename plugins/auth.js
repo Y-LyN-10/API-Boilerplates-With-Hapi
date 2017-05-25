@@ -6,9 +6,7 @@ const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
 exports.register = function (server, pluginOptions, next) {
-  const generateTokens = function(user, done) {
-    console.log('generate token for user', user);
-    
+  const generateTokens = function(user, done) {   
     let session = {
       email : user.email,
       name  : user.firstName + ' ' + user.lastName,
@@ -40,8 +38,6 @@ exports.register = function (server, pluginOptions, next) {
   }
   
   const validateToken = function (decoded, request, callback) {
-    console.log('decoded', decoded);
-    
     if (request.yar.get(decoded.id)) {
       callback(null, true);
     } else {
