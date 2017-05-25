@@ -1,23 +1,48 @@
 'use strict';
 
 const Bcrypt = require('bcrypt');
+const Async = require('async');
 const Joi = require('joi');
 const MongoModels = require('mongo-models');
 
 class User extends MongoModels {
-  static create(profile, callback) {
+  static generatePasswordHash(password) {    
+    return Bcrypt.hashSync(password, Bcrypt.genSaltSync(8), null);
+  }
+
+  static validPassword(password, hash) {    
+    return Bcrypt.compareSync(password, hash);
+  }
+  
+  static create(profile, strategy, callback) {
     // TODO: Add validation for mentormate.com domain. It's in profile.domain
-    
+
+    // base
     const user = {
-      email     : profile.emails[0].value.toLowerCase(),
-      firstName : profile.name.givenName,
-      lastName  : profile.name.familyName,
-      image     : profile.image.url,
-      google_id : profile.id,
-      language  : profile.language,
       scope: 'user',
       isActive: true,
       timeCreated: new Date()
+    }
+
+    if(strategy === 'local') {
+      user.email    = profile.email.toLowerCase();
+      user.name     = profile.name;
+      user.password = profile.password;
+    }
+
+    // if authenticated via google
+    if(strategy === 'google') {
+      user.email = profile.emails[0].value.toLowerCase();
+      user.name  = profile.name.givenName + ' ' +  profile.name.familyName;
+
+      user.google_profile = {
+        emails   : profile.emails,
+        firstName: profile.name.givenName,
+        lastName : profile.name.familyName,
+        id       : profile.id,
+        image    : profile.image.url,
+        language : profile.language
+      };
     }
 
     Joi.validate(user, this.schema, (err, value) => {
@@ -47,20 +72,24 @@ User.collection = 'users';
 
 User.schema = Joi.object().keys({
   _id: Joi.object(),
-  firstName: Joi.string().allow(''),
-  lastName: Joi.string().allow(''),
-  google_id: Joi.string().required(),
-  image: Joi.string(),
   email: Joi.string().email().lowercase().required(),
+  name: Joi.string(),
+  password: Joi.string().allow(null),
+  google_profile: {
+    emails: Joi.array(),
+    firstName: Joi.string().allow(''),
+    lastName: Joi.string().allow(''),
+    id: Joi.string(),
+    image: Joi.string(),
+    language: Joi.string().allow('')
+  },
   scope: Joi.string().allow('admin', 'user').default('user'),
   timeCreated: Joi.date(),
-  language: Joi.string().allow(''),
   isActive: true
 });
 
 User.indexes = [
-  { key: { username: 1, unique: true } },
-  { key: { email: 1, unique: true } }
+  { key: { email: 1, unique: true }}
 ];
 
 module.exports = User;

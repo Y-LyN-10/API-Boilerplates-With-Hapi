@@ -1,6 +1,8 @@
 const JWT = require('jsonwebtoken'); // session stored as a JWT cookie
 const Boom = require('boom');
 
+const STRATEGY_GOOGLE = 'google';
+
 module.exports = function(request, reply, tokens, profile) {
   
   if(profile) {
@@ -29,7 +31,7 @@ module.exports = function(request, reply, tokens, profile) {
           return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
         });
       } else {
-        User.create(profile, (err, user) => {
+        User.create(profile, STRATEGY_GOOGLE,(err, user) => {
           if(err) {
             request.server.log([], err);
             return reply(Boom.badRequest('Failed to create a user'));

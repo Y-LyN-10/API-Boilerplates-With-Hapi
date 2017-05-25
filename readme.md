@@ -35,10 +35,10 @@ General idea and todo-list:
         + :white_check_mark: Setup configurations, user model (passwordless)
         + :white_check_mark: Login/Register with Google Account
         + :white_medium_square: Force MongoDB security & credentials usage
-        + :white_medium_square: User login/registration with password (hashed & salted)
+        + :white_check_mark: User login/registration with password (hashed & salted)
         + :white_check_mark: List users with pagination, filters and sorting
         + :white_medium_square: Update user's password functionality
         + :white_medium_square: Link google account with local and vice-versa
-        + :white_medium_square: Soft delete user
+        + :white_check_mark: Delete user
     
 * :white_medium_square: Neo4j Graph Database

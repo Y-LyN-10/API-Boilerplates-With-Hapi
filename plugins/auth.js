@@ -117,10 +117,7 @@ exports.register = function (server, pluginOptions, next) {
           .or('refreshToken', ['email', 'password'])
       },
       handler: function (request, reply) {
-
-        // TODO: Replace fake users with real model & database
-
-        const User = require('../db/models/user');
+        const User = request.server.plugins['hapi-mongo-models'].User;
 
         // Validations
 
@@ -128,19 +125,23 @@ exports.register = function (server, pluginOptions, next) {
           return reply('Already logged in !');
         }
 
-        if (!request.payload || !request.payload.email || !request.payload.password) {
-          return reply(Boom.unauthorized('Email or password invalid...'));
+        if(request.payload.refreshToken) {
+          // TODO: Validate the refresh token
+        } else {
+          
+          User.findByEmail(request.payload.email, (err, user) => {
+            if(err) { return reply(err); }
+
+            if (!user || !User.validPassword(request.payload.password, user.password)) {
+              return reply(Boom.badRequest('Sorry, wrong email or password'));
+            }
+            
+            server.methods.authenticate(request, user, tokens => {
+              return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+            });
+            
+          });
         }
-
-        let user = User.findByEmail(request.payload.email);
-
-        // if (request.payload.password !== user.password) {
-        //   return reply(Boom.unauthorized('Email or Password invalid...'));
-        // }
-
-        server.methods.authenticate(request, user, tokens => {
-          return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
-        });
       }
     }
   });
