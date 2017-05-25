@@ -22,10 +22,11 @@ General idea and todo-list:
 * :white_check_mark: Swagger Documentation
 
 **Branching:**
-* :white_medium_square: Users Model & CRUD 
+* Users Model & CRUD 
     - :white_medium_square: with Sequelize & Relational Database
         + :white_medium_square: Setup configurations, user model, seeder and migrations
         + :white_medium_square: Login/Register with Google Account
+        + :white_medium_square: List users with pagination, filters and sorting
         + :white_medium_square: User login/registration with password (hashed & salted)
         + :white_medium_square: Update user's profile & password functionality
         + :white_medium_square: Link google account with local and vice-versa
@@ -35,7 +36,8 @@ General idea and todo-list:
         + :white_check_mark: Login/Register with Google Account
         + :white_medium_square: Force MongoDB security & credentials usage
         + :white_medium_square: User login/registration with password (hashed & salted)
-        + :white_medium_square: Update user's profile & password functionality
+        + :white_check_mark: List users with pagination, filters and sorting
+        + :white_medium_square: Update user's password functionality
         + :white_medium_square: Link google account with local and vice-versa
         + :white_medium_square: Soft delete user
     
