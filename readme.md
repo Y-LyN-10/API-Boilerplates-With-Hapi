@@ -34,7 +34,7 @@ General idea and todo-list:
     - :white_medium_square: with MongoDB (*with-mongodb* git branch)
         + :white_check_mark: Setup configurations, user model (passwordless)
         + :white_check_mark: Login/Register with Google Account
-        + :white_medium_square: Force MongoDB security & credentials usage
+        + :white_check_mark: Config MongoDB security & force credentials usage
         + :white_check_mark: User login/registration with password (hashed & salted)
         + :white_check_mark: List users with pagination, filters and sorting
         + :white_medium_square: Update user's password functionality
