@@ -63,11 +63,12 @@ const manifest = {
     plugin: {
       register: 'yar',
       options: {
+        storeBlank: false,
         maxCookieSize: 0, // force server-side storage
         cache: { cache: 'session' },
         cookieOptions: {
           password: envKey('jar_secret'),  // cookie password
-          isSecure: false               // allow non HTTPS
+          isSecure: process.env.NODE_ENV === 'production',
         }
       }
     }

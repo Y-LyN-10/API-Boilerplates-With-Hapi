@@ -6,10 +6,10 @@ const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
 exports.register = function (server, pluginOptions, next) {
-  const generateTokens = function(user, done) {   
+  const generateTokens = function(user, done) {
     let session = {
       email : user.email,
-      name  : user.firstName + ' ' + user.lastName,
+      name  : user.name,
       id    : user._id,
 
       // Scope determines user's access rules for auth
@@ -30,6 +30,7 @@ exports.register = function (server, pluginOptions, next) {
   const authenticate = function(request, account, done) {
     const sid = uuid();
     account.sid = sid;
+    console.log('authenticate account', account);
     request.yar.set(account._id.toString(), {account});
     
     server.methods.generateTokens(account, tokens => {
@@ -38,18 +39,14 @@ exports.register = function (server, pluginOptions, next) {
   }
   
   const validateToken = function (decoded, request, callback) {
+    console.log('VALIDATE', decoded.id, typeof decoded.id, 'from yar', request.yar.get(decoded.id));
+    console.log(request.yar);
+    
     if (request.yar.get(decoded.id)) {
       callback(null, true);
     } else {
       callback(null, false);
     }
-  };
-
-  const verifyToken = function (decoded, request, callback) {
-    JWT.verify(request.auth.token, pluginOptions.secret, function (err, valid) {
-      if (err) { return callback(err, false);}
-      validateToken(decoded, request, callback);
-    });
   };
 
   server.method('authenticate', authenticate);
@@ -58,7 +55,7 @@ exports.register = function (server, pluginOptions, next) {
   
   // JWT Token Auth - required for all routes by default
   server.auth.strategy('jwt', 'jwt', true, {
-    verifyFunc: verifyToken,
+    key: pluginOptions.secret,
     validateFunc: validateToken,
     verifyOptions: {
       ignoreExpiration: false,
@@ -118,6 +115,7 @@ exports.register = function (server, pluginOptions, next) {
       },
       handler: function (request, reply) {
         const User = request.server.plugins['hapi-mongo-models'].User;
+        const body = request.payload;
 
         // Validations
 
@@ -125,17 +123,43 @@ exports.register = function (server, pluginOptions, next) {
           return reply('Already logged in !');
         }
 
-        if(request.payload.refreshToken) {
-          // TODO: Validate the refresh token
-        } else {
-          
-          User.findByEmail(request.payload.email, (err, user) => {
-            if(err) { return reply(err); }
+        if(body.refreshToken) {
+          // Validate the refresh token
 
-            if (!user || !User.validPassword(request.payload.password, user.password)) {
+          JWT.verify(body.refreshToken, pluginOptions.secret, function (jwtErr, decoded) {
+            if (jwtErr) {
+              return reply(Boom.unauthorized(jwtErr));
+            }
+
+            console.log('decoded refresh token', decoded);
+            validateToken(decoded, request, function(err, isValid) {
+              if(err || !isValid) {
+                return reply(Boom.unauthorized('Session expired or has been closed by the user'));
+              }
+               
+              User.findById(decoded.id, (err, user) => {
+                if (err) { return reply(err); }
+
+                if (!user) {
+                  return reply(Boom.notFound('User not found'));
+                }
+                
+                server.methods.authenticate(request, user, tokens => {
+                  return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+                });
+              });
+              
+            });  
+          });
+          
+        } else {
+            User.findByEmail(body.email, (err, user) => {
+              if(err) { return reply(err); }
+
+            if (!user || !User.validPassword(body.password, user.password)) {
               return reply(Boom.badRequest('Sorry, wrong email or password'));
             }
-            
+
             server.methods.authenticate(request, user, tokens => {
               return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
             });
