@@ -1,57 +1,63 @@
 MongoDB Security is a matter of server configuration and can not be forced by the application code.
 Please, follow the steps below to enable security on your server: 
 
-0. Create MongoDB root user for your system.
 
-Example:
+## 1. Create MongoDB root user for your system.
 
-```
+*Example:*
+
+``` 
+$ mongo
 > use admin
 > db.createUser({
     user: "root",
     pwd: "password",
     roles: [{ role: "root", db: "admin" }]
 });
-
 ```
 
 **Don't ever use that user for development or any application code!**
-
 When the authentication is enabled, you will need that user to create other users, grant or revoke access, perform different operations and manage your local database in general.
 
 
-1. Following the principle of least privilege, please create a new user with 'readWrite' role to the database, associated with the project.
+## 2. Following the principle of least privilege, please create a new user with 'readWrite' role to the database, associated with the project.
 
-Example:
+*Example:*
 
 ```
 $ mongo
 > use hapi-api-database
 > db.createUser({user: "hapiAPI", pwd: "strongPass123", roles: [{role: "readWrite", db: "hapi-api-database"}]});
-
 ```
 
-2. Re-start the MongoDB instance with access control (check the exact command for your OS). Other options are to change the mongodb/mongod configuration files, setting "auth = true", but research that for your OS.
+## 3. Re-start the MongoDB instance with access control (check the exact command for your OS). 
+Other options are to change the mongodb/mongod configuration files, setting "auth = true", but research that for your OS.
 
-``` $ sudo mongod --auth --port 27017 ```
+```
+$ sudo mongod --auth --port 27017 
+```
 
 Clients that connect to this instance must now authenticate themselves as a MongoDB user.
 
-To authorize, use 'db.auth()' function with your root credentials:
+To authorize, use `db.auth()` function with your root credentials:
 
-Example:
+*Example:*
 
-```> db.auth('root', 'password');```
+```
+> db.auth('root', 'password');
+```
 
-3. Connect to the database with user & password
 
-To authenticate via the application, add your credentials to the mongodb connection string (MONGO_URI):
-Note the authMechanism param.
+## 4. Connect to the database with user & password
 
-Example:
+To authenticate via the application, add your credentials to the mongodb connection string (MONGO_URI) in the `.env` file.
+Note the `authMechanism` param.
+
+*Example:*
 
 ```
 export MONGO_URI=mongodb://hapiAPI:strongPass123@localhost:27017/hapi-api-database?authMechanism=SCRAM-SHA-1
 ```
 
-**IMPORTANT**: If you are using Robomongo, make sure to upgrate to the latest version (1.x.x) and select "SCRAM-SHA-1" Auth mechanism, otherwise the authentication will not be successful even with correct credentials.
+## **IMPORTANT**: 
+If you are using `Robomongo`, make sure to upgrate to the latest version (1.x.x) and select "`SCRAM-SHA-1`" Auth mechanism, otherwise the authentication will not be successful even with correct credentials.
