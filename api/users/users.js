@@ -3,8 +3,6 @@
 const Boom  = require('boom');
 const Joi   = require('joi');
 
-const STRATEGY_LOCAL = 'local';
-
 // Minimum 8 chars total with at least one upper case, one lower case and a digit
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
 
@@ -12,12 +10,12 @@ module.exports.list = {
   tags: ['api', 'users'],
   description: 'List users',
   notes: 'List users with pagination',
-  auth: {scope: [ 'admin' ]},
+  auth: false, // {scope: [ 'admin' ]},
   validate: {
     query: {
-      firstName: Joi.string().token().lowercase(),
-      isActive: Joi.string(),
-      role: Joi.string(),
+      name: Joi.string(),
+      isActive: Joi.boolean(),
+      scope: Joi.string(),
       fields: Joi.string(),
       sort: Joi.string().default('_id'),
       limit: Joi.number().default(20),
@@ -25,28 +23,20 @@ module.exports.list = {
     }
   },
   handler: function (request, reply) {
-    const User = request.server.plugins['hapi-mongo-models'].User;
-
-    const query = {};
-
-    if (request.query.username) {
-      query.username = new RegExp('^.*?' + request.query.username + '.*$', 'i');
-    }
+    const User  = request.server.plugins['hapi-mongo-models'].User;
+    const filterByKeys = ['isActive', 'name', 'scope'];
     
-    if (request.query.isActive) {
-      query.isActive = request.query.isActive === 'true';
-    }
-    
-    if (request.query.role) {
-      query['roles.' + request.query.role] = { $exists: true };
-    }
+    const criteria = filterByKeys.reduce((result, key) => {
+      if(request.query[key]) { result[key] = request.query[key]; }
+      return result;
+    }, {});
     
     const fields = request.query.fields;
-    const sort = request.query.sort;
-    const limit = request.query.limit;
-    const page = request.query.page;
+    const sort   = request.query.sort;
+    const limit  = request.query.limit;
+    const page   = request.query.page;
 
-    User.pagedFind(query, fields, sort, limit, page, (err, results) => {
+    User.pagedFind(criteria, fields, sort, limit, page, (err, results) => {
 
       if (err) {
         return reply(err);
@@ -105,6 +95,7 @@ module.exports.me = {
   }
 };
 
+const STRATEGY_LOCAL = 'local';
 module.exports.create = {
   tags: ['api', 'users'],
   description: 'Create a new user',
