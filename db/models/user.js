@@ -53,7 +53,7 @@ class User extends MongoModels {
         console.log(err);
       }
 
-
+      // TODO: Filter the response keys and do not send the password back      
       this.insertOne(value, (err, results) => {
         callback(err, results[0]);
       });

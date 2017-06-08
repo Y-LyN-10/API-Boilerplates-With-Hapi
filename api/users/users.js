@@ -15,7 +15,7 @@ module.exports.list = {
     query: {
       name: Joi.string(),
       isActive: Joi.boolean(),
-      scope: Joi.string(),
+      scope: Joi.string().valid(['admin', 'user']),
       fields: Joi.string(),
       sort: Joi.string().default('_id'),
       limit: Joi.number().default(20),
@@ -25,8 +25,8 @@ module.exports.list = {
   handler: function (request, reply) {
     const User  = request.server.plugins['hapi-mongo-models'].User;
     const filterByKeys = ['isActive', 'name', 'scope'];
-
-    // pass only non-undefined criteria
+    
+    // pass only 'search' criteria
     const criteria = filterByKeys.reduce((result, key) => {
       if (request.query[key]) {
         result[key] = request.query[key];
@@ -42,50 +42,7 @@ module.exports.list = {
 
     User.pagedFind(criteria, fields, sort, limit, page, (err, results) => {
       if (err) return reply(err);
-
-      return reply(results);
-    });
-  }
-};
-
-module.exports.get = {
-  tags: ['api', 'users'],
-  description: 'Get user',
-  notes: 'Read single user\'s data',
-  auth: {scope: [ 'admin' ]},
-  validate: {
-    params: {
-      id: Joi.string()
-    }
-  },
-  handler: function (request, reply) {
-    const User = request.server.plugins['hapi-mongo-models'].User;
-
-    User.findById(request.params.id, (err, user) => {
-      if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('User not found'));
-
-      return reply(user);
-    });
-  }
-};
-
-module.exports.me = {
-  tags: ['api', 'users'],
-  description: 'My profile',
-  notes: 'User can request his own profile data on this route',
-  auth: {scope: ['admin', 'user']},
-  handler: function (request, reply) {
-    const User = request.server.plugins['hapi-mongo-models'].User;
-    const fields = User.fieldsAdapter('firstName lastName email image');
-
-    const id = request.auth.credentials.id.toString();
-    
-    User.findById(id, fields, (err, user) => {
-      if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('Document not found. That is strange.'));
-
-      return reply(user);
+      reply(results);
     });
   }
 };
@@ -122,9 +79,106 @@ module.exports.create = {
       // Use the local strategy
       User.create(data, 'local', (onCreateError, newUser) => {
         if (onCreateError) return reply(onCreateError);
-        
-        return reply(newUser);
+        reply(newUser);
       });
+    });
+  }
+};
+
+module.exports.viewProfile = {
+  tags: ['api', 'users'],
+  description: 'My profile',
+  notes: 'User can request his own profile data on this route',
+  auth: {scope: ['user', 'admin']},
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-mongo-models'].User;
+    const fields = User.fieldsAdapter('name email image timeCreated');
+    const id = request.auth.credentials.id.toString();
+    
+    User.findById(id, fields, (err, user) => {
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('Document not found. That is strange.'));
+
+      console.log(user);
+      reply(user);
+    });
+  }
+};
+
+module.exports.updateProfile = {
+  tags: ['api', 'users'],
+  description: 'Update user',
+  auth: {scope: ['user', 'admin']},
+  notes: 'Logged in user is able to update his own profile: names and image',
+  validate: {
+    payload: Joi.object()
+      .keys({
+        firstName: Joi.string().min(2).max(255).required(),
+        lastName: Joi.string().min(2).max(255).required(),
+        image: Joi.string().uri().optional()
+      })
+  },
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-mongo-models'].User;
+    const id = request.auth.credentials.id.toString();
+    const update = request.payload;
+    
+    User.findByIdAndUpdate(id, update, (err, user) => {
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('User not found.'));
+
+      reply('Updated');
+    });
+  }
+};
+
+module.exports.updatePassword = {
+  tags: ['api', 'users'],
+  description: 'Update user',
+  auth: {scope: ['user']},
+  notes: 'Logged in user is able to update his own password',
+  validate: {
+    payload: Joi.object()
+      .keys({
+        oldPassword: Joi.string().regex(passwordRegex).optional(),
+        newPassword: Joi.string().regex(passwordRegex).optional(),
+        newPasswordConfirmation: Joi.string().valid(Joi.ref('newPassword'))
+      })
+      .with('oldPassword', 'newPassword', 'newPasswordConfirmation')
+  },
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-mongo-models'].User;
+    const fields = User.fieldsAdapter('firstName lastName email image');
+    const id = request.auth.credentials.id.toString();
+
+    // Find user by ID
+    // Check that the old password is correct
+    // Generate hash for the new password
+    // Save the hash to the database
+    
+    reply(Boom.notImplemented());
+  }
+};
+
+
+module.exports.get = {
+  tags: ['api', 'users'],
+  description: 'Get user',
+  notes: 'Read single user\'s data',
+  auth: {scope: [ 'admin' ]},
+  validate: {
+    params: {
+      id: Joi.string()
+    }
+  },
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-mongo-models'].User;
+
+    User.findById(request.params.id, (err, user) => {
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('User not found'));
+
+      return reply(user);
     });
   }
 };
@@ -132,7 +186,8 @@ module.exports.create = {
 module.exports.update = {
   tags: ['api', 'users'],
   description: 'Update user',
-  notes: 'Change user\'s password',
+  auth: {scope: ['user']},
+  notes: 'Update user\'s profile',
   validate: {
     params: {
       id: Joi.string().guid()
@@ -145,6 +200,13 @@ module.exports.update = {
       .with('password', 'passwordConfirmation')
   },
   handler: function (request, reply) {
+    const User = request.server.plugins['hapi-mongo-models'].User;
+
+    /*
+      Expected functionality: 
+      - Admin should be able to update user's profile data
+     */
+   
     return reply(Boom.notImplemented());
   }
 };
