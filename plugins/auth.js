@@ -5,6 +5,8 @@ const Boom = require('boom');
 const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
+
 exports.register = function (server, pluginOptions, next) {
   const generateTokens = function (user, done) {
     let session = {
@@ -142,7 +144,7 @@ exports.register = function (server, pluginOptions, next) {
         } else {
           User.findByEmail(body.email, (err, user) => {
             if (err) return reply(err);
- 
+            
             if (!user || !User.validPassword(body.password, user.password)) {
               return reply(Boom.badRequest('Sorry, wrong email or password'));
             }
@@ -170,6 +172,89 @@ exports.register = function (server, pluginOptions, next) {
     }
   });
 
+  server.route({
+    method: 'POST',
+    path: '/auth/forgotPassword',
+    config: {
+      tags: ['api', 'auth', 'password'],
+      description: 'Forgot Password',
+      auth: false,
+      notes: 'Generate temporary URI that allows to set a new password',
+      plugins: { 'hapi-rate-limit': { pathLimit: 5 } },
+      validate: {
+        payload: Joi.object()
+          .keys({ email: Joi.string().email().required() })
+      },
+      handler: function (request, reply) {
+        const User = request.server.plugins['hapi-mongo-models'].User;
+      
+        User.findByEmail(request.payload.email, (err, user) => {
+          if (err) return reply(err);
+          
+          if (!user) {
+            // Please, use the following reply when ready!
+            // return reply(`Email is sent to ${request.payload.email} if that user exists`);
+            return reply(Boom.notFound('User with this email does not exist'));
+          }
+
+          /* TODO:
+             1. Generate temporary token & uri like /auth/resetPassword?token=blahBlah13345
+             2. Implement node-mailer and sent it by email
+          */
+
+          reply({
+            uri: 'https://localhost/auth/resetPassword?token=todo'
+          });
+          
+        });
+      }
+    }
+  });
+
+  server.route({
+    method: 'POST',
+    path: '/auth/resetPassword',
+    config: {
+      tags: ['api', 'auth'],
+      description: 'Set a new password',
+      auth: false,
+      notes: 'Set a new password using temporary token, requested by the user',
+      validate: {
+        payload: Joi.object()
+          .keys({
+            token: Joi.string().required(),
+            password: Joi.string().regex(passwordRegex).required(),
+            passwordConfirmation: Joi.string().min(8).max(200).required().valid(Joi.ref('password'))
+          })
+      },
+      handler: function (request, reply) {
+        const User = request.server.plugins['hapi-mongo-models'].User;
+              
+        /* TODO:
+           1. Validate the token 
+           2. Get user's id by the associated token (in Redis, probably)
+           2. Set the new password           
+        */
+
+        if(request.payload.token !== 'todo') {
+          return reply(Boom.unauthorized('Token has expired'));
+        }
+
+        const id = '5926e6ec00775f41762b516f'; // for the test
+        const update = {
+          password: User.generatePasswordHash(request.payload.password)
+        };
+
+        User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
+          if (err) return reply(err);
+          if (!user) return reply(Boom.notFound('User not found'));
+
+          reply(user);
+        });
+      } 
+    }
+  });
+  
   next();
 };
 

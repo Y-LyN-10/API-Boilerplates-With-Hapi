@@ -97,7 +97,7 @@ module.exports.viewProfile = {
     
     User.findById(id, fields, (err, user) => {
       if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('Document not found. That is strange.'));
+      if (!user) return reply(Boom.notFound('User not found. That is strange.'));
       
       reply(user);
     });
@@ -126,7 +126,7 @@ module.exports.updateProfile = {
     
     User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('User not found.'));
+      if (!user) return reply(Boom.notFound('User not found'));
 
       reply(user);
     });
@@ -163,7 +163,7 @@ module.exports.updatePassword = {
 
       User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
         if (err) return reply(err);
-        if (!user) return reply(Boom.notFound('User not found.'));
+        if (!user) return reply(Boom.notFound('User not found'));
 
         reply(user);
       });
@@ -220,7 +220,7 @@ module.exports.update = {
     
     User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('User not found.'));
+      if (!user) return reply(Boom.notFound('User not found'));
 
       reply(user);
     });
@@ -245,7 +245,7 @@ module.exports.delete = {
 
     User.findByIdAndDelete(id, (err, user) => {
       if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('User not found.'));
+      if (!user) return reply(Boom.notFound('User not found'));
 
       reply(user);
     });
