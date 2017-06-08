@@ -6,8 +6,20 @@ const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
+const RESET_PASS_SECRET = 'add another ENV variable later';
 
 exports.register = function (server, pluginOptions, next) {
+  const generateResetPasswordToken = function(user, done) {
+    let session = {
+      id: user._id,
+      exp: Date.now() / 1000 + (60 * 30) * 12 // 6 hours
+    };
+
+    let resetPasswordToken = JWT.sign(session, RESET_PASS_SECRET, {algorithm: 'HS256'});
+
+    done(resetPasswordToken);
+  };
+  
   const generateTokens = function (user, done) {
     let session = {
       email : user.email,
@@ -32,7 +44,6 @@ exports.register = function (server, pluginOptions, next) {
   const authenticate = function (request, account, done) {
     const sid = uuid();
     account.sid = sid;
-    console.log('authenticate account', account);
     request.yar.set(account._id.toString(), {account});
 
     server.methods.generateTokens(account, tokens => {
@@ -197,15 +208,18 @@ exports.register = function (server, pluginOptions, next) {
             return reply(Boom.notFound('User with this email does not exist'));
           }
 
-          /* TODO:
-             1. Generate temporary token & uri like /auth/resetPassword?token=blahBlah13345
-             2. Implement node-mailer and sent it by email
-          */
-
-          reply({
-            uri: 'https://localhost/auth/resetPassword?token=todo'
+          generateResetPasswordToken(user, token => {
+            const resetPasswordRoute = '/auth/resetPassword?token=';  
+            const uri = request.connection.info.protocol 
+                  + '://' 
+                  + request.info.host 
+                  + resetPasswordRoute
+                  + token;
+            
+            // TODO: Implement node-mailer and sent it by email
+            
+            reply({uri});
           });
-          
         });
       }
     }
@@ -229,27 +243,25 @@ exports.register = function (server, pluginOptions, next) {
       },
       handler: function (request, reply) {
         const User = request.server.plugins['hapi-mongo-models'].User;
-              
-        /* TODO:
-           1. Validate the token 
-           2. Get user's id by the associated token (in Redis, probably)
-           2. Set the new password           
-        */
 
-        if(request.payload.token !== 'todo') {
-          return reply(Boom.unauthorized('Token has expired'));
-        }
+        JWT.verify(request.payload.token, RESET_PASS_SECRET, {algorithm: 'HS256'}, function (err, valid) {
+          if (err) return reply(Boom.unauthorized(err));
 
-        const id = '5926e6ec00775f41762b516f'; // for the test
-        const update = {
-          password: User.generatePasswordHash(request.payload.password)
-        };
+          console.log('error?', err);
+          
+          const decoded = JWT.decode(request.payload.token);
+          const id = decoded.id;
+          const update = {
+            password: User.generatePasswordHash(request.payload.password)
+          };
 
-        User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
-          if (err) return reply(err);
-          if (!user) return reply(Boom.notFound('User not found'));
+          User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
+            if (err) return reply(err);
+            if (!user) return reply(Boom.notFound('User not found'));
 
-          reply(user);
+            // TODO: Immediately invalidate the token after usage
+            reply(user);
+          });
         });
       } 
     }
