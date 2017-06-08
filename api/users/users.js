@@ -98,8 +98,7 @@ module.exports.viewProfile = {
     User.findById(id, fields, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('Document not found. That is strange.'));
-
-      console.log(user);
+      
       reply(user);
     });
   }
@@ -122,8 +121,10 @@ module.exports.updateProfile = {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.auth.credentials.id.toString();
     const update = request.payload;
+
+    // TODO: Fix name / firstName + lastName inconsistencies
     
-    User.findByIdAndUpdate(id, update, (err, user) => {
+    User.findByIdAndUpdate(id, { $set:update }, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found.'));
 
@@ -160,25 +161,22 @@ module.exports.updatePassword = {
   }
 };
 
-
 module.exports.get = {
   tags: ['api', 'users'],
   description: 'Get user',
   notes: 'Read single user\'s data',
-  auth: {scope: [ 'admin' ]},
-  validate: {
-    params: {
-      id: Joi.string()
-    }
-  },
+  auth: {scope: ['admin']},
+  validate: { params: { id: Joi.string() } },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-
-    User.findById(request.params.id, (err, user) => {
+    const fields = User.fieldsAdapter('_id name email image scope isActive timeCreated');
+    const id = request.params.id;
+    
+    User.findById(id, fields, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
-
-      return reply(user);
+      
+      reply(user);
     });
   }
 };
@@ -186,28 +184,36 @@ module.exports.get = {
 module.exports.update = {
   tags: ['api', 'users'],
   description: 'Update user',
-  auth: {scope: ['user']},
-  notes: 'Update user\'s profile',
+  auth: {scope: ['admin']},
+  notes: 'Update user\'s data by Administrator',
   validate: {
     params: {
-      id: Joi.string().guid()
+      id: Joi.string() // TODO: Add lib for validation mongoDB object IDs
     },
     payload: Joi.object()
       .keys({
-        password: Joi.string().regex(passwordRegex).optional(),
-        passwordConfirmation: Joi.string().valid(Joi.ref('password'))
+        firstName: Joi.string().min(2).max(255),
+        lastName: Joi.string().min(2).max(255),
+        // email: Joi.string().email(),
+        image: Joi.string().uri().optional(),
+        isActive: Joi.boolean(),
+        scope: Joi.string().valid(['admin', 'user'])
       })
-      .with('password', 'passwordConfirmation')
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
+    const id = request.params.id;
+    const update = request.payload;
 
-    /*
-      Expected functionality: 
-      - Admin should be able to update user's profile data
-     */
-   
-    return reply(Boom.notImplemented());
+    // TODO: Fix name / firstName + lastName inconsistencies 
+    // TODO: Check email for uniqueness
+    
+    User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('User not found.'));
+
+      return reply({ message: 'Updated.' });
+    });
   }
 };
 
@@ -216,25 +222,22 @@ module.exports.delete = {
   description: 'Delete user',
   notes: 'Delete user by ID (soft delete)',
   auth: {scope: [ 'admin' ]},
-  validate: {
-    params: {
-      id: Joi.string().guid()
-    }
-  },
+  validate: { params: { id: Joi.string() } },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-
+    const id = request.params.id;
+    
     /* Issue: I deleted my own admin account and was still able to use
               the API with the access token, even though the user does
               not exist anymore */
 
     // This is not 'soft delete' btw
 
-    User.findByIdAndDelete(request.params.id, (err, user) => {
+    User.findByIdAndDelete(id, (err, user) => {
       if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('Document not found.'));
+      if (!user) return reply(Boom.notFound('User not found.'));
 
-      return reply({ message: 'Success.' });
+      reply({ message: 'Success.' });
     });
   }
 };
