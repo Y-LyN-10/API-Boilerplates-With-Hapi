@@ -39,12 +39,9 @@ exports.register = function (server, pluginOptions, next) {
   };
 
   const validateToken = function (decoded, request, callback) {
-    console.log('VALIDATE', decoded.id, typeof decoded.id, 'from yar', request.yar.get(decoded.id));
-    console.log(request.yar);
-
-    if (request.yar.get(decoded.id))      {
+    if (request.yar.get(decoded.id)) {
       callback(null, true);
-    }    else      {
+    } else {
       callback(null, false);
     }
   };
@@ -80,13 +77,13 @@ exports.register = function (server, pluginOptions, next) {
       auth: false,
       notes: 'Autnenticate with Google',
       handler: function (request, reply) {
-        if (request.auth.isAuthenticated)          {
-          return reply('Already logged in !');
-        }        else {
-          var url = request.server.generate_google_oauth2_url();
-          console.log(url);
-          return reply.redirect(url);
+        // TODO: Test that! Maybe request.auth.credentials should be ckecked
+        if (request.auth.isAuthenticated) {
+          return reply({message: 'Already logged in!'});
         }
+        
+        var url = request.server.generate_google_oauth2_url();
+        reply.redirect(url);
       }
     }
   });
@@ -99,9 +96,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Login',
       auth: false,
       notes: 'Autnenticate with email and password to request JWT access token',
-      plugins: {
-        'hapi-rate-limit': { pathLimit: 3 }
-      },
+      plugins: { 'hapi-rate-limit': { pathLimit: 3 } },
       validate: {
         payload: Joi.object()
           .keys({
@@ -118,40 +113,25 @@ exports.register = function (server, pluginOptions, next) {
         const body = request.payload;
 
         // Validations
-
-        if (request.auth.isAuthenticated)          {
+        if (request.auth.isAuthenticated) {
           return reply('Already logged in !');
         }
 
-
-        if (body.refreshToken)
-
+        if (body.refreshToken) {
           // Validate the refresh token
-
-          {
           JWT.verify(body.refreshToken, pluginOptions.secret, function (jwtErr, decoded) {
-            if (jwtErr)              {
+            if (jwtErr) {
               return reply(Boom.unauthorized(jwtErr));
             }
 
-
-            console.log('decoded refresh token', decoded);
             validateToken(decoded, request, function (err, isValid) {
-              if (err || !isValid)                {
+              if (err || !isValid) {
                 return reply(Boom.unauthorized('Session expired or has been closed by the user'));
               }
 
-
               User.findById(decoded.id, (err, user) => {
-                if (err)                  {
-                  return reply(err);
-                }
-
-
-                if (!user)                  {
-                  return reply(Boom.notFound('User not found'));
-                }
-
+                if (err) return reply(err);
+                if (!user) return reply(Boom.notFound('User not found.'));
 
                 server.methods.authenticate(request, user, tokens => {
                   return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
@@ -159,20 +139,16 @@ exports.register = function (server, pluginOptions, next) {
               });
             });
           });
-        }        else          {
+        } else {
           User.findByEmail(body.email, (err, user) => {
-            if (err)              {
-              return reply(err);
-            }
-
-
-            if (!user || !User.validPassword(body.password, user.password))              {
+            if (err) return reply(err);
+ 
+            if (!user || !User.validPassword(body.password, user.password)) {
               return reply(Boom.badRequest('Sorry, wrong email or password'));
             }
 
-
             server.methods.authenticate(request, user, tokens => {
-              return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+              reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
             });
           });
         }
@@ -189,7 +165,7 @@ exports.register = function (server, pluginOptions, next) {
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
         request.yar.clear(request.auth.credentials.id);
-        return reply('User successfully logged out');
+        reply('User successfully logged out');
       }
     }
   });

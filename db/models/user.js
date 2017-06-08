@@ -46,10 +46,8 @@ class User extends MongoModels {
     }
 
     Joi.validate(user, this.schema, (err, value) => {
-      if (err)
-
+      if (err) {
         // FIXME: In development. Just log the error for now
-        {
         console.log(err);
       }
 

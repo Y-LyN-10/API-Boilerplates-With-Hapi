@@ -124,11 +124,11 @@ module.exports.updateProfile = {
 
     // TODO: Fix name / firstName + lastName inconsistencies
     
-    User.findByIdAndUpdate(id, { $set:update }, (err, user) => {
+    User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found.'));
 
-      reply('Updated');
+      reply(user);
     });
   }
 };
@@ -136,7 +136,7 @@ module.exports.updateProfile = {
 module.exports.updatePassword = {
   tags: ['api', 'users'],
   description: 'Update user',
-  auth: {scope: ['user']},
+  auth: {scope: ['admin', 'user']},
   notes: 'Logged in user is able to update his own password',
   validate: {
     payload: Joi.object()
@@ -149,15 +149,25 @@ module.exports.updatePassword = {
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-    const fields = User.fieldsAdapter('firstName lastName email image');
     const id = request.auth.credentials.id.toString();
 
-    // Find user by ID
-    // Check that the old password is correct
-    // Generate hash for the new password
-    // Save the hash to the database
-    
-    reply(Boom.notImplemented());
+    User.findById(id, (err, user) => {
+      if (err) return reply(err);
+      if (!user || !User.validPassword(request.payload.oldPassword, user.password)) {
+        return reply(Boom.badRequest('Sorry, provided old password is incorrect'));
+      }
+
+      const update = {
+        password: User.generatePasswordHash(request.payload.newPassword)
+      };
+
+      User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
+        if (err) return reply(err);
+        if (!user) return reply(Boom.notFound('User not found.'));
+
+        reply(user);
+      });
+    });
   }
 };
 
@@ -212,7 +222,7 @@ module.exports.update = {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found.'));
 
-      return reply({ message: 'Updated.' });
+      reply(user);
     });
   }
 };
@@ -237,7 +247,7 @@ module.exports.delete = {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found.'));
 
-      reply({ message: 'Success.' });
+      reply(user);
     });
   }
 };
