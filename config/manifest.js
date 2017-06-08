@@ -34,6 +34,7 @@ const manifest = {
     tls: {
       key: fs.readFileSync('config/.keys/key.pem'),
       cert: fs.readFileSync('config/.keys/cert.pem')
+
       // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
     },
     routes: {
@@ -68,7 +69,7 @@ const manifest = {
         cache: { cache: 'session' },
         cookieOptions: {
           password: envKey('jar_secret'),  // cookie password
-          isSecure: process.env.NODE_ENV === 'production',
+          isSecure: process.env.NODE_ENV === 'production'
         }
       }
     }
@@ -88,7 +89,7 @@ const manifest = {
     }
   }, {
     plugin: {
-      register: "hapi-mongo-models",
+      register: 'hapi-mongo-models',
       options: {
         mongodb: {
           uri: envKey('mongo_uri'),
@@ -96,7 +97,7 @@ const manifest = {
         },
         autoIndex: false,
         models: {
-          User: "./db/models/user.js"
+          User: './db/models/user.js'
         }
       }
     }
@@ -114,7 +115,7 @@ const manifest = {
     }
   }, {
     plugin: {
-      register: "hapi-auth-google",
+      register: 'hapi-auth-google',
       options: {
         REDIRECT_URL: '/auth/google',
         config: {
@@ -124,7 +125,7 @@ const manifest = {
         },
         handler: require('.././plugins/google-oauth'),
         scope: ['https://www.googleapis.com/auth/plus.profile.emails.read',
-                'https://www.googleapis.com/auth/plus.login'],
+          'https://www.googleapis.com/auth/plus.login'],
         BASE_URL:'http://' + envKey('host') + ':80'
       }
     }
@@ -148,17 +149,18 @@ const manifest = {
 
 // hapi-auth-google can be registered only once, so if we have SSL connection, it's better to used it
 const sslConn = manifest.connections.find((conn) => conn.tls);
-if(sslConn){
+if (sslConn)  {
   manifest.registrations.map((r) => {
-    if(r.plugin.register === 'hapi-auth-google') {
+    if (r.plugin.register === 'hapi-auth-google')      {
       return r.plugin.options.BASE_URL = 'https://' + sslConn.host + ':' + sslConn.port;
     }
   });
 }
 
+
 // App Status Monitoring. Works with a signle connection only.
 // Run 'npm install hapijs-status-monitor --save' before using
-if(manifest.connections.length === 1) {
+if (manifest.connections.length === 1)  {
   manifest.registrations.push({
     plugin: {
       register: 'hapijs-status-monitor',
@@ -169,7 +171,8 @@ if(manifest.connections.length === 1) {
     }
   });
 }
-  
+
+
 if (process.env.NODE_ENV !== 'production') {
   // Display the routes table on startup
   manifest.registrations.push({

@@ -1,7 +1,6 @@
 const Users = require('./users');
 
 exports.register = (plugin, options, next) => {
-
   plugin.route([
     { method: 'GET', path: '/', config: Users.list },
     { method: 'GET', path: '/me', config: Users.me },

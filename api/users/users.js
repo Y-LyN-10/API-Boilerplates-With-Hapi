@@ -25,22 +25,23 @@ module.exports.list = {
   handler: function (request, reply) {
     const User  = request.server.plugins['hapi-mongo-models'].User;
     const filterByKeys = ['isActive', 'name', 'scope'];
-    
+
+    // pass only non-undefined criteria
     const criteria = filterByKeys.reduce((result, key) => {
-      if(request.query[key]) { result[key] = request.query[key]; }
+      if (request.query[key]) {
+        result[key] = request.query[key];
+      }
+
       return result;
     }, {});
-    
+
     const fields = request.query.fields;
     const sort   = request.query.sort;
     const limit  = request.query.limit;
     const page   = request.query.page;
 
     User.pagedFind(criteria, fields, sort, limit, page, (err, results) => {
-
-      if (err) {
-        return reply(err);
-      }
+      if (err) return reply(err);
 
       return reply(results);
     });
@@ -61,11 +62,8 @@ module.exports.get = {
     const User = request.server.plugins['hapi-mongo-models'].User;
 
     User.findById(request.params.id, (err, user) => {
-      if (err) { return reply(err); }
-
-      if (!user) {
-        return reply(Boom.notFound('User not found'));
-      }
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('User not found'));
 
       return reply(user);
     });
@@ -76,26 +74,22 @@ module.exports.me = {
   tags: ['api', 'users'],
   description: 'My profile',
   notes: 'User can request his own profile data on this route',
-  auth: {scope: [ 'admin', 'user']},
+  auth: {scope: ['admin', 'user']},
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-    
-    const id = request.auth.credentials.id.toString();
     const fields = User.fieldsAdapter('firstName lastName email image');
 
+    const id = request.auth.credentials.id.toString();
+    
     User.findById(id, fields, (err, user) => {
-      if (err) { return reply(err); }
-
-      if (!user) {
-        return reply(Boom.notFound('Document not found. That is strange.'));
-      }
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('Document not found. That is strange.'));
 
       return reply(user);
     });
   }
 };
 
-const STRATEGY_LOCAL = 'local';
 module.exports.create = {
   tags: ['api', 'users'],
   description: 'Create a new user',
@@ -112,20 +106,24 @@ module.exports.create = {
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-
+    
     User.findByEmail(request.payload.email, (err, user) => {
-      if(err) { return reply(err); }
-      if(user) { return reply(Boom.conflict('Email already in use.')); }
+      if (err) return reply(err);
 
+      // TODO: Merge google & local accounts
+      if (user) return reply(Boom.conflict('Email already in use.'));
+      
       let data = {
         name: request.payload.firstName + ' ' + request.payload.lastName,
         email: request.payload.email,
         password: User.generatePasswordHash(request.payload.password)
-      }
-      
-      User.create(data, STRATEGY_LOCAL, (err, user) => {
-        if (err) { return reply(err);}
-        return reply(user);
+      };
+
+      // Use the local strategy
+      User.create(data, 'local', (onCreateError, newUser) => {
+        if (onCreateError) return reply(onCreateError);
+        
+        return reply(newUser);
       });
     });
   }
@@ -158,22 +156,21 @@ module.exports.delete = {
   auth: {scope: [ 'admin' ]},
   validate: {
     params: {
-      id: Joi.string() // TODO: Add joi-objectid npm module to validate mongodb IDs
+      id: Joi.string().guid()
     }
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
 
-    // Issue: I deleted my own admin account and was still able to use the API with the access token, even though the user does not exist anymore
+    /* Issue: I deleted my own admin account and was still able to use
+              the API with the access token, even though the user does
+              not exist anymore */
 
     // This is not 'soft delete' btw
-    
-    User.findByIdAndDelete(request.params.id, (err, user) => {
-      if (err) { return reply(err); }
 
-      if (!user) {
-        return reply(Boom.notFound('Document not found.'));
-      }
+    User.findByIdAndDelete(request.params.id, (err, user) => {
+      if (err) return reply(err);
+      if (!user) return reply(Boom.notFound('Document not found.'));
 
       return reply({ message: 'Success.' });
     });

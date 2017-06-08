@@ -3,9 +3,8 @@ const Boom = require('boom');
 
 const STRATEGY_GOOGLE = 'google';
 
-module.exports = function(request, reply, tokens, profile) {
-  
-  if(profile) {
+module.exports = function (request, reply, googleTokens, profile) {
+  if (profile) {
     // extract the relevant data from Profile to store in JWT object
     let session = {
       email     : profile.emails[0].value,
@@ -13,37 +12,37 @@ module.exports = function(request, reply, tokens, profile) {
       lastName  : profile.name.familyName,
       image     : profile.image.url,
       id        : profile.id,
-      exp       : Math.floor(new Date().getTime()/1000) + 7*24*60*60,
+      exp       : Math.floor(new Date().getTime() / 1000) + 7 * 24 * 60 * 60,
       agent     : request.headers['user-agent']
     };
 
     const User = request.server.plugins['hapi-mongo-models'].User;
 
-     User.findByEmail(session.email, (err, user) => {
-      if(err) {
+    User.findByEmail(session.email, (err, user) => {
+      if (err) {
         request.server.log([], err);
         return reply(Boom.badRequest());
       }
 
       // This user already exist in the database
-      if(user) {
+      if (user)        {
         request.server.methods.authenticate(request, user, tokens => {
           return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
         });
-      } else {
-        User.create(profile, STRATEGY_GOOGLE,(err, user) => {
-          if(err) {
+      }      else        {
+        User.create(profile, STRATEGY_GOOGLE, (err, newUser) => {
+          if (err) {
             request.server.log([], err);
             return reply(Boom.badRequest('Failed to create a user'));
           }
 
-          request.server.methods.authenticate(request, user, tokens => {
+          request.server.methods.authenticate(request, newUser, tokens => {
             return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
           });
         });
       }
     });
-  } else {
+  } else    {
     return reply(Boom.badRequest());
   }
 };

@@ -6,15 +6,15 @@ const Joi = require('joi');
 const MongoModels = require('mongo-models');
 
 class User extends MongoModels {
-  static generatePasswordHash(password) {    
+  static generatePasswordHash (password) {
     return Bcrypt.hashSync(password, Bcrypt.genSaltSync(8), null);
   }
 
-  static validPassword(password, hash) {    
+  static validPassword (password, hash) {
     return Bcrypt.compareSync(password, hash);
   }
-  
-  static create(profile, strategy, callback) {
+
+  static create (profile, strategy, callback) {
     // TODO: Add validation for mentormate.com domain. It's in profile.domain
 
     // base
@@ -22,16 +22,16 @@ class User extends MongoModels {
       scope: 'user',
       isActive: true,
       timeCreated: new Date()
-    }
+    };
 
-    if(strategy === 'local') {
+    if (strategy === 'local') {
       user.email    = profile.email.toLowerCase();
       user.name     = profile.name;
       user.password = profile.password;
     }
 
     // if authenticated via google
-    if(strategy === 'google') {
+    if (strategy === 'google') {
       user.email = profile.emails[0].value.toLowerCase();
       user.name  = profile.name.givenName + ' ' +  profile.name.familyName;
 
@@ -46,10 +46,13 @@ class User extends MongoModels {
     }
 
     Joi.validate(user, this.schema, (err, value) => {
-      if(err) {
+      if (err)
+
         // FIXME: In development. Just log the error for now
+        {
         console.log(err);
       }
+
 
       this.insertOne(value, (err, results) => {
         callback(err, results[0]);
@@ -57,12 +60,12 @@ class User extends MongoModels {
     });
   }
 
-  static findByEmail(email, callback) {
+  static findByEmail (email, callback) {
     const query = { email: email.toLowerCase() };
     this.findOne(query, callback);
   }
 
-  constructor(attrs) {
+  constructor (attrs) {
     super(attrs);
   }
 

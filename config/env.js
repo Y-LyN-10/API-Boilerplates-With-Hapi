@@ -1,6 +1,6 @@
 const envKey = key => {
   const env = process.env.NODE_ENV || 'development';
-  
+
   const configuration = {
     host: process.env.HOST,
     port: process.env.PORT || 80,
