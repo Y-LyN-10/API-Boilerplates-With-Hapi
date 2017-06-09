@@ -96,9 +96,9 @@ module.exports.viewProfile = {
     const fields = User.fieldsAdapter('name email image timeCreated');
     const id = request.auth.credentials.id.toString();
 
-    // const findUserByIdPromise = util.promisify(User.findById);
-    
-    util.promisify(User.findById)
+    // Example how to use promises with Mongo Models:
+    util
+      .promisify(User.findById)
       .apply(User, [id, fields])
       .then(user => reply(user))
       .catch(err => reply(err));

@@ -202,24 +202,37 @@ exports.register = function (server, pluginOptions, next) {
         User.findByEmail(request.payload.email, (err, user) => {
           if (err) return reply(err);
           
-          if (!user) {
-            // Please, use the following reply when ready!
-            // return reply(`Email is sent to ${request.payload.email} if that user exists`);
-            return reply(Boom.notFound('User with this email does not exist'));
+          if (user) {
+            generateResetPasswordToken(user, token => {
+              const resetPasswordRoute = '/auth/resetPassword?token=';  
+              const uri = request.connection.info.protocol 
+                    + '://' 
+                    + request.info.host 
+                    + resetPasswordRoute
+                    + token;
+
+              const transporter = request.server.plugins.nodemailer.client;
+
+              // TODO: Refactoring. Load email templates from somewhere else
+              let options = {
+                from: '"MentorMate Server" <happy.server@mentormate.com>',
+                to: request.payload.email,
+                subject: 'Restore password',
+                html: `<p>Hello. If you forgot your password, you can restore it using the following <a href="${uri}">LINK</a></p><br/><br/><p>In case that the URL is blocked by your mail client, please copy the following address into your browser: ${uri}</p>`,
+                text: ''
+              };
+
+              transporter.sendMail(options, (sendEmailError, info) => {
+                if (sendEmailError) request.server.log([], sendEmailError);
+                request.server.log([], `Message ${info.messageId} sent: ${info.response}`);
+              });
+              
+            });
           }
 
-          generateResetPasswordToken(user, token => {
-            const resetPasswordRoute = '/auth/resetPassword?token=';  
-            const uri = request.connection.info.protocol 
-                  + '://' 
-                  + request.info.host 
-                  + resetPasswordRoute
-                  + token;
-            
-            // TODO: Implement node-mailer and sent it by email
-            
-            reply({uri});
-          });
+          // Note: If the service is not working, we are lying the users that the email is sent
+          reply(`Email is sent to ${request.payload.email} (if that user exists)`);
+        
         });
       }
     }

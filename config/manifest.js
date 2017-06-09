@@ -130,6 +130,19 @@ const manifest = {
       }
     }
   }, {
+    plugin: {
+      register: './plugins/nodemailer',
+      options: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // secure:true for port 465, secure:false for port 587
+        auth: {
+          user: envKey('email_address'),
+          pass: envKey('email_password')
+        }
+      }
+    }
+  }, {
     plugin: './api/users',
     options: { routes: { prefix: '/api/users' }}
   }, {

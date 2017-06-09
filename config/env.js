@@ -8,7 +8,9 @@ const envKey = key => {
     jar_secret: process.env.JAR_SECRET,
     mongo_uri: process.env.MONGO_URI,
     google_client_id: process.env.GOOGLE_CLIENT_ID,
-    google_client_secret: process.env.GOOGLE_CLIENT_SECRET
+    google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    email_address: process.env.GMAIL_ADDRESS,
+    email_password: process.env.GMAIL_PASSWORD
   };
 
   return configuration[key];
