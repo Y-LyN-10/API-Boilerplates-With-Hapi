@@ -1,7 +1,8 @@
 'use strict';
 
-const Boom  = require('boom');
-const Joi   = require('joi');
+const Boom = require('boom');
+const Joi  = require('joi');
+const util = require('util');
 
 // Minimum 8 chars total with at least one upper case, one lower case and a digit
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
@@ -39,7 +40,7 @@ module.exports.list = {
     const sort   = request.query.sort;
     const limit  = request.query.limit;
     const page   = request.query.page;
-
+    
     User.pagedFind(criteria, fields, sort, limit, page, (err, results) => {
       if (err) return reply(err);
       reply(results);
@@ -94,13 +95,13 @@ module.exports.viewProfile = {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const fields = User.fieldsAdapter('name email image timeCreated');
     const id = request.auth.credentials.id.toString();
+
+    // const findUserByIdPromise = util.promisify(User.findById);
     
-    User.findById(id, fields, (err, user) => {
-      if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('User not found. That is strange.'));
-      
-      reply(user);
-    });
+    util.promisify(User.findById)
+      .apply(User, [id, fields])
+      .then(user => reply(user))
+      .catch(err => reply(err));
   }
 };
 
