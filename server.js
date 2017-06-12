@@ -18,8 +18,8 @@ Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {
 
   server.views({
     engines: { dust: require('hapi-dust') },
-    relativeTo: __dirname + '/templates',
-    path: 'web'
+    relativeTo: __dirname + '/public',
+    path: 'templates'
   });
   
   server.initialize((initErr) => {

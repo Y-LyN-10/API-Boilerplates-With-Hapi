@@ -17,7 +17,7 @@ const manifest = {
     port: envKey('port') || 80,
     routes: {
       files: {
-        relativeTo: Path.join(__dirname + './../')
+        relativeTo: Path.join(__dirname + './../public')
       },
       cors: {
         origin: [ '*' ],
@@ -41,7 +41,7 @@ const manifest = {
     },
     routes: {
       files: {
-        relativeTo: Path.join(__dirname + './../')
+        relativeTo: Path.join(__dirname + './../public')
       },
       cors: {
         origin: [ '*' ],
