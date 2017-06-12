@@ -16,6 +16,9 @@ const manifest = {
     host: envKey('host'),
     port: envKey('port') || 80,
     routes: {
+      files: {
+        relativeTo: Path.join(__dirname + './../')
+      },
       cors: {
         origin: [ '*' ],
         additionalExposedHeaders: [
@@ -34,10 +37,12 @@ const manifest = {
     tls: {
       key: fs.readFileSync('config/.keys/key.pem'),
       cert: fs.readFileSync('config/.keys/cert.pem')
-
       // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
     },
     routes: {
+      files: {
+        relativeTo: Path.join(__dirname + './../')
+      },
       cors: {
         origin: [ '*' ],
         additionalExposedHeaders: [
@@ -131,6 +136,10 @@ const manifest = {
     }
   }, {
     plugin: {
+      register: 'inert'
+    }
+  }, { 
+    plugin: {
       register: './plugins/nodemailer',
       options: {
         host: 'smtp.gmail.com',
@@ -145,6 +154,9 @@ const manifest = {
   }, {
     plugin: './api/users',
     options: { routes: { prefix: '/api/users' }}
+  }, {
+    plugin: './api/render',
+    options: {}
   }, {
     plugin: {
       register: 'good',

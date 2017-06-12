@@ -9,7 +9,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
 const RESET_PASS_SECRET = 'add another ENV variable later';
 
 exports.register = function (server, pluginOptions, next) {
-  const generateResetPasswordToken = function(user, done) {
+  const generateResetPasswordToken = function (user, done) {
     let session = {
       id: user._id,
       exp: Date.now() / 1000 + (60 * 20) // 20 minutes
@@ -19,7 +19,7 @@ exports.register = function (server, pluginOptions, next) {
 
     done(resetPasswordToken);
   };
-  
+
   const generateTokens = function (user, done) {
     let session = {
       email : user.email,
@@ -94,7 +94,7 @@ exports.register = function (server, pluginOptions, next) {
         if (request.auth.isAuthenticated) {
           return reply({message: 'Already logged in!'});
         }
-        
+
         var url = request.server.generate_google_oauth2_url();
         reply.redirect(url);
       }
@@ -109,7 +109,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Login',
       auth: false,
       notes: 'Autnenticate with email and password to request JWT access token',
-      plugins: { 'hapi-rate-limit': { pathLimit: 3 } }, // limits even if the requests are successful 
+      plugins: { 'hapi-rate-limit': { pathLimit: 3 } }, // limits even if the requests are successful
       validate: {
         payload: Joi.object()
           .keys({
@@ -155,7 +155,7 @@ exports.register = function (server, pluginOptions, next) {
         } else {
           User.findByEmail(body.email, (err, user) => {
             if (err) return reply(err);
-            
+
             if (!user || !User.validPassword(body.password, user.password)) {
               return reply(Boom.badRequest('Sorry, wrong email or password'));
             }
@@ -185,7 +185,7 @@ exports.register = function (server, pluginOptions, next) {
 
   server.route({
     method: 'POST',
-    path: '/auth/forgotPassword',
+    path: '/auth/forgotten',
     config: {
       tags: ['api', 'auth', 'password'],
       description: 'Forgot Password',
@@ -198,18 +198,18 @@ exports.register = function (server, pluginOptions, next) {
       },
       handler: function (request, reply) {
         const User = request.server.plugins['hapi-mongo-models'].User;
-      
+
         User.findByEmail(request.payload.email, (err, user) => {
           if (err) return reply(err);
-          
+
           if (user) {
             generateResetPasswordToken(user, token => {
-              const resetPasswordRoute = '/auth/resetPassword?token=';  
-              const uri = request.connection.info.protocol 
-                    + '://' 
-                    + request.info.host 
-                    + resetPasswordRoute
-                    + token;
+              const resetPasswordRoute = '/reset-password?token=';
+              const uri = request.connection.info.protocol +
+                    '://' +
+                    request.info.host +
+                    resetPasswordRoute +
+                    token;
 
               const transporter = request.server.plugins.nodemailer.client;
 
@@ -226,13 +226,11 @@ exports.register = function (server, pluginOptions, next) {
                 if (sendEmailError) request.server.log([], sendEmailError);
                 request.server.log([], `Message ${info.messageId} sent: ${info.response}`);
               });
-              
             });
           }
 
           // Note: If the service is not working, we are lying the users that the email is sent
           reply(`Email is sent to ${request.payload.email} (if that user exists)`);
-        
         });
       }
     }
@@ -240,7 +238,7 @@ exports.register = function (server, pluginOptions, next) {
 
   server.route({
     method: 'POST',
-    path: '/auth/resetPassword',
+    path: '/auth/reset',
     config: {
       tags: ['api', 'auth'],
       description: 'Set a new password',
@@ -261,7 +259,7 @@ exports.register = function (server, pluginOptions, next) {
           if (err) return reply(Boom.unauthorized(err));
 
           console.log('error?', err);
-          
+
           const decoded = JWT.decode(request.payload.token);
           const id = decoded.id;
           const update = {
@@ -273,8 +271,7 @@ exports.register = function (server, pluginOptions, next) {
             if (!user) return reply(Boom.notFound('User not found'));
 
             // TODO: Immediately invalidate the token after usage
-            
-            // TODO: Send an email for successfully changed password
+
             const transporter = request.server.plugins.nodemailer.client;
 
             // TODO: Refactoring. Load email templates from somewhere else
@@ -282,7 +279,7 @@ exports.register = function (server, pluginOptions, next) {
               from: '"MentorMate Server" <happy.server@mentormate.com>',
               to: request.payload.email,
               subject: 'Yout password has been changed',
-              html: `<p>Your password in "Hapi API Boilerplate Project" has been changed successfully.</p><br/><p>If you did not change your password, then you're screwed.</p>`,
+              html: '<p>Your password in "Hapi API Boilerplate Project" has been changed successfully.</p><br/><p>If you did not change your password, then you\'re screwed.</p>',
               text: ''
             };
 
@@ -290,16 +287,16 @@ exports.register = function (server, pluginOptions, next) {
               if (sendEmailError) request.server.log([], sendEmailError);
               request.server.log([], `Message ${info.messageId} sent: ${info.response}`);
             });
-            
+
             // TODO on front-end: redirect to the login page
             // TODO: Also for the front-end: The page that accepts the new passwords from the user should not be refreshable in the user browser. E.g remove the query strings and keep the token in the memory
             reply(user);
           });
         });
-      } 
+      }
     }
   });
-  
+
   next();
 };
 

@@ -2,6 +2,7 @@ const Users = require('./users');
 
 exports.register = (plugin, options, next) => {
   plugin.route([
+
     // Public
     { method: 'POST',   path: '/', config: Users.create },
 

@@ -26,7 +26,7 @@ module.exports.list = {
   handler: function (request, reply) {
     const User  = request.server.plugins['hapi-mongo-models'].User;
     const filterByKeys = ['isActive', 'name', 'scope'];
-    
+
     // pass only 'search' criteria
     const criteria = filterByKeys.reduce((result, key) => {
       if (request.query[key]) {
@@ -40,7 +40,7 @@ module.exports.list = {
     const sort   = request.query.sort;
     const limit  = request.query.limit;
     const page   = request.query.page;
-    
+
     User.pagedFind(criteria, fields, sort, limit, page, (err, results) => {
       if (err) return reply(err);
       reply(results);
@@ -64,13 +64,13 @@ module.exports.create = {
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-    
+
     User.findByEmail(request.payload.email, (err, user) => {
       if (err) return reply(err);
 
       // TODO: Merge google & local accounts
       if (user) return reply(Boom.conflict('Email already in use.'));
-      
+
       let data = {
         name: request.payload.firstName + ' ' + request.payload.lastName,
         email: request.payload.email,
@@ -124,7 +124,7 @@ module.exports.updateProfile = {
     const update = request.payload;
 
     // TODO: Fix name / firstName + lastName inconsistencies
-    
+
     User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
@@ -152,16 +152,16 @@ module.exports.updatePassword = {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.auth.credentials.id.toString();
 
-    /* TODO: 
+    /* TODO:
        1. Limit to 3 failed attempts (with wrong old password) in a single day
        2. Send an email that the password had been changed or has 3 failed attempts
-       3. More logging: The server should always log attempts to change passwords 
-       whether they are successful or not. It should log the user's information but 
-       not any passwords entered or their hashes. It should note whether the change 
-       succeeded or failed. 
+       3. More logging: The server should always log attempts to change passwords
+       whether they are successful or not. It should log the user's information but
+       not any passwords entered or their hashes. It should note whether the change
+       succeeded or failed.
        4. Add CAPTCHA
     */
-   
+
     User.findById(id, (err, user) => {
       if (err) return reply(err);
       if (!user || !User.validPassword(request.payload.oldPassword, user.password)) {
@@ -186,17 +186,17 @@ module.exports.get = {
   tags: ['api', 'users'],
   description: 'Get user',
   notes: 'Read single user\'s data',
-  auth: {scope: ['admin']},
+  auth: {scope: [ 'admin' ]},
   validate: { params: { id: Joi.string() } },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const fields = User.fieldsAdapter('_id name email image scope isActive timeCreated');
     const id = request.params.id;
-    
+
     User.findById(id, fields, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
-      
+
       reply(user);
     });
   }
@@ -205,7 +205,7 @@ module.exports.get = {
 module.exports.update = {
   tags: ['api', 'users'],
   description: 'Update user',
-  auth: {scope: ['admin']},
+  auth: {scope: [ 'admin' ]},
   notes: 'Update user\'s data by Administrator',
   validate: {
     params: {
@@ -215,6 +215,7 @@ module.exports.update = {
       .keys({
         firstName: Joi.string().min(2).max(255),
         lastName: Joi.string().min(2).max(255),
+
         // email: Joi.string().email(),
         image: Joi.string().uri().optional(),
         isActive: Joi.boolean(),
@@ -226,9 +227,9 @@ module.exports.update = {
     const id = request.params.id;
     const update = request.payload;
 
-    // TODO: Fix name / firstName + lastName inconsistencies 
+    // TODO: Fix name / firstName + lastName inconsistencies
     // TODO: Check email for uniqueness
-    
+
     User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
@@ -247,7 +248,7 @@ module.exports.delete = {
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.params.id;
-    
+
     /* Issue: I deleted my own admin account and was still able to use
               the API with the access token, even though the user does
               not exist anymore */
