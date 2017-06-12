@@ -12,7 +12,7 @@ exports.register = function (server, pluginOptions, next) {
   const generateResetPasswordToken = function(user, done) {
     let session = {
       id: user._id,
-      exp: Date.now() / 1000 + (60 * 30) * 12 // 6 hours
+      exp: Date.now() / 1000 + (60 * 20) // 20 minutes
     };
 
     let resetPasswordToken = JWT.sign(session, RESET_PASS_SECRET, {algorithm: 'HS256'});
@@ -273,6 +273,8 @@ exports.register = function (server, pluginOptions, next) {
             if (!user) return reply(Boom.notFound('User not found'));
 
             // TODO: Immediately invalidate the token after usage
+            // TODO on front-end: redirect to the login page
+            // TODO: Also for the front-end: The page that accepts the new passwords from the user should not be refreshable in the user browser. E.g remove the query strings and keep the token in the memory
             reply(user);
           });
         });

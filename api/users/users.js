@@ -152,6 +152,15 @@ module.exports.updatePassword = {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.auth.credentials.id.toString();
 
+    /* TODO: 
+       1. Limit to 3 failed attempts (with wrong old password) in a single day
+       2. Send an email that the password had been changed or has 3 failed attempts
+       3. More logging: The server should always log attempts to change passwords 
+       whether they are successful or not. It should log the user's information but 
+       not any passwords entered or their hashes. It should note whether the change 
+       succeeded or failed. 
+    */
+   
     User.findById(id, (err, user) => {
       if (err) return reply(err);
       if (!user || !User.validPassword(request.payload.oldPassword, user.password)) {
