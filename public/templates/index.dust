@@ -7,6 +7,6 @@
     <title>Hapi API Boilerplate</title>
   </head>
   <body>
-    <div id="app">Welcome!</div>
+    <div id="app">Welcome, {username}!</div>
   </body>
 </html>

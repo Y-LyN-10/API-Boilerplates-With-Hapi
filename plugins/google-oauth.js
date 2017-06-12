@@ -27,7 +27,9 @@ module.exports = function (request, reply, googleTokens, profile) {
       // This user already exist in the database
       if (user) {
         request.server.methods.authenticate(request, user, tokens => {
-          return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+          return reply
+            .redirect('/', tokens)
+            .header('Authorization', 'Bearer ' + tokens.accessToken);
         });
       } else {
         User.create(profile, STRATEGY_GOOGLE, (err, newUser) => {
@@ -37,7 +39,9 @@ module.exports = function (request, reply, googleTokens, profile) {
           }
 
           request.server.methods.authenticate(request, newUser, tokens => {
-            return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+            return reply
+              .redirect('/', tokens)
+              .header('Authorization', 'Bearer ' + tokens.accessToken);
           });
         });
       }

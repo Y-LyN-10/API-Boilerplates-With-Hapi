@@ -45,7 +45,8 @@ exports.register = function (server, pluginOptions, next) {
     const sid = uuid();
     account.sid = sid;
     request.yar.set(account._id.toString(), {account});
-
+    request.auth.isAuthenticated = true;
+    
     server.methods.generateTokens(account, tokens => {
       done(tokens);
     });
@@ -64,7 +65,7 @@ exports.register = function (server, pluginOptions, next) {
   server.method('generateTokens', generateTokens);
 
   // JWT Token Auth - required for all routes by default
-  server.auth.strategy('jwt', 'jwt', true, {
+  server.auth.strategy('jwt', 'jwt', 'try', {
     key: pluginOptions.secret,
     validateFunc: validateToken,
     verifyOptions: {
@@ -178,7 +179,7 @@ exports.register = function (server, pluginOptions, next) {
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
         request.yar.clear(request.auth.credentials.id);
-        reply('User successfully logged out');
+        reply.redirect(request.query.next);
       }
     }
   });
