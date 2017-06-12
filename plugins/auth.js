@@ -109,7 +109,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Login',
       auth: false,
       notes: 'Autnenticate with email and password to request JWT access token',
-      plugins: { 'hapi-rate-limit': { pathLimit: 3 } },
+      plugins: { 'hapi-rate-limit': { pathLimit: 3 } }, // limits even if the requests are successful 
       validate: {
         payload: Joi.object()
           .keys({
@@ -217,7 +217,7 @@ exports.register = function (server, pluginOptions, next) {
               let options = {
                 from: '"MentorMate Server" <happy.server@mentormate.com>',
                 to: request.payload.email,
-                subject: 'Restore password',
+                subject: 'Forgot your password?',
                 html: `<p>Hello. If you forgot your password, you can restore it using the following <a href="${uri}">LINK</a></p><br/><br/><p>In case that the URL is blocked by your mail client, please copy the following address into your browser: ${uri}</p>`,
                 text: ''
               };
@@ -273,6 +273,24 @@ exports.register = function (server, pluginOptions, next) {
             if (!user) return reply(Boom.notFound('User not found'));
 
             // TODO: Immediately invalidate the token after usage
+            
+            // TODO: Send an email for successfully changed password
+            const transporter = request.server.plugins.nodemailer.client;
+
+            // TODO: Refactoring. Load email templates from somewhere else
+            let options = {
+              from: '"MentorMate Server" <happy.server@mentormate.com>',
+              to: request.payload.email,
+              subject: 'Yout password has been changed',
+              html: `<p>Your password in "Hapi API Boilerplate Project" has been changed successfully.</p><br/><p>If you did not change your password, then you're screwed.</p>`,
+              text: ''
+            };
+
+            transporter.sendMail(options, (sendEmailError, info) => {
+              if (sendEmailError) request.server.log([], sendEmailError);
+              request.server.log([], `Message ${info.messageId} sent: ${info.response}`);
+            });
+            
             // TODO on front-end: redirect to the login page
             // TODO: Also for the front-end: The page that accepts the new passwords from the user should not be refreshable in the user browser. E.g remove the query strings and keep the token in the memory
             reply(user);

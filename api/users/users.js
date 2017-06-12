@@ -159,6 +159,7 @@ module.exports.updatePassword = {
        whether they are successful or not. It should log the user's information but 
        not any passwords entered or their hashes. It should note whether the change 
        succeeded or failed. 
+       4. Add CAPTCHA
     */
    
     User.findById(id, (err, user) => {
