@@ -34,10 +34,14 @@ General idea and todo-list:
     - :white_medium_square: with MongoDB (*with-mongodb* git branch)
         + :white_check_mark: Setup configurations, user model (passwordless)
         + :white_check_mark: Login/Register with Google Account
+        + :white_medium_square: Implement registration validation by Email
         + :white_check_mark: [Config MongoDB security & force credentials usage](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/blob/with-mongodb/secure-mongodb-setup.md)
         + :white_check_mark: User login/registration with password (hashed & salted)
         + :white_check_mark: List users with pagination, filters and sorting
-        + :white_medium_square: Update user's password functionality
+        + :white_check_mark: Update user's password functionality
+        + :white_check_mark: Forgot / Reset Password functionality API
+        + :white_check_mark: Send emails forgot password / password changed
+        + :white_medium_square: CAPTCHA on user registration / change password pages
         + :white_medium_square: Link google account with local and vice-versa
         + :white_check_mark: Delete user
     
