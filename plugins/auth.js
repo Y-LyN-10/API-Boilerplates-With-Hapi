@@ -255,6 +255,19 @@ exports.register = function (server, pluginOptions, next) {
       handler: function (request, reply) {
         const User = request.server.plugins['hapi-mongo-models'].User;
 
+        /* TODO: Integrate server-side checking for reCAPTCHA
+
+           When your users submit the form where you integrated reCAPTCHA, you'll get as 
+           part of the payload a string with the name "g-recaptcha-response". In order to 
+           check whether Google has verified that user, send a POST request with these 
+           parameters:
+
+           URL: https://www.google.com/recaptcha/api/siteverify
+           secret (required)	6LdzJyUUAAAAANAnox4Voy-oMfUQ4z9I12SJd0v1
+           response (required)	The value of 'g-recaptcha-response'.
+           remoteip	        The end user's ip address. 
+        */
+        
         JWT.verify(request.payload.token, RESET_PASS_SECRET, {algorithm: 'HS256'}, function (err, valid) {
           if (err) return reply(Boom.unauthorized(err));
 
