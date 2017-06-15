@@ -1,0 +1,14 @@
+image: node:8.1.0
+
+cache:
+  paths:
+    - node_modules/
+
+services:
+  - mongodb:3.4.3
+  - redis:3.2.9
+
+all_tests:
+  script:
+    - npm install
+    - npm test
