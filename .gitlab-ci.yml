@@ -8,8 +8,8 @@ before_script:
   - npm install
 
 services:
-  - mongodb:3.4.3
-  - redis:3.2.9
+  - mongo
+  - redis
 
 all_tests:
   script:
