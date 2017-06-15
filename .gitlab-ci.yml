@@ -1,8 +1,11 @@
-image: node:8.1.0
+image: node:latest
 
 cache:
   paths:
     - node_modules/
+
+before_script:
+  - npm install
 
 services:
   - mongodb:3.4.3
@@ -10,5 +13,9 @@ services:
 
 all_tests:
   script:
-    - npm install
     - npm test
+
+build_&_deploy_app:
+  stage: build_deploy
+  script:
+    - node server
