@@ -15,7 +15,7 @@ all_tests:
   script:
     - npm test
 
-build_&_deploy_app:
-  stage: build_deploy
+build:
+  stage: build
   script:
     - node server
