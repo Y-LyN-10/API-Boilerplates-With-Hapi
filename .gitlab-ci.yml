@@ -11,11 +11,7 @@ services:
   - mongo
   - redis
 
-all_tests:
+build:
+  stage: test
   script:
     - npm test
-
-build:
-  stage: build
-  script:
-    - node server
