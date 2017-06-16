@@ -8,7 +8,7 @@ const manifest = {
     cache: {
       engine: require('catbox-redis'),
       name: 'session',
-      host: '127.0.0.1',
+      host: envKey('redis_host'),
       port: 6379
     }
   },
