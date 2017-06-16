@@ -14,4 +14,4 @@ services:
 build:
   stage: test
   script:
-    - npm test
+    - lab -c
