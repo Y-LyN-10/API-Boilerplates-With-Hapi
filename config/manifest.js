@@ -60,7 +60,7 @@ const manifest = {
       register: './plugins/redis',
       options: {
         partition: 'cache',
-        host: '127.0.0.1', // default
+        host: envKey('redis_host'),
         port: 6379,      // default
         password: ''
       }
