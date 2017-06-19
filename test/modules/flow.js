@@ -9,20 +9,6 @@ module.exports = function(lab, server) {
   let accessToken;
   let refreshToken;
 
-  // Should return 200 status code (health check - API is up and running)
-
-  /* Registration
-     - Should fail with bad password
-     - Should fail with no names
-     - Should fail with invalid email address
-     - Should create user with correct credentials (local strategy)
-     - Should hash the password
-     - Should not return the hashed password
-     - Should fail with existing email (use admin user's email, for example)
-  */
-
-  /* Authentication  */
-  
   lab.test.skip("should fail with wrong password", function(done) {
     var options = {
       method: "POST",
@@ -161,7 +147,7 @@ module.exports = function(lab, server) {
 
   // Should be able to login with the new password
   
-  // Should authenticate with Google + (these is a test admin account)
+  // Should authenticate with another (admin) user (insert it to the database directly from here)
 
   // Should be able to see / update / delete other user's profile
 

@@ -80,7 +80,7 @@ module.exports.create = {
       // Use the local strategy
       User.create(data, 'local', (onCreateError, newUser) => {
         if (onCreateError) return reply(onCreateError);
-        reply(newUser);
+        reply(newUser).code(201);
       });
     });
   }
