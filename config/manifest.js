@@ -155,9 +155,6 @@ const manifest = {
     plugin: './api/users',
     options: { routes: { prefix: '/api/users' }}
   }, {
-    plugin: './api/render',
-    options: {}
-  }, {
     plugin: {
       register: 'good',
       options: {
