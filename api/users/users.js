@@ -11,7 +11,7 @@ module.exports.list = {
   tags: ['api', 'users'],
   description: 'List users',
   notes: 'List users with pagination',
-  auth: false, // {scope: [ 'admin' ]},
+  auth: {scope: [ 'admin' ]},
   validate: {
     query: {
       name: Joi.string(),
@@ -187,18 +187,21 @@ module.exports.get = {
   description: 'Get user',
   notes: 'Read single user\'s data',
   auth: {scope: [ 'admin' ]},
-  validate: { params: { id: Joi.string() } },
+  validate: {
+    params: {
+      id: Joi.string()
+    }
+  },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const fields = User.fieldsAdapter('_id name email image scope isActive timeCreated');
     const id = request.params.id;
 
-    User.findById(id, fields, (err, user) => {
-      if (err) return reply(err);
-      if (!user) return reply(Boom.notFound('User not found'));
-
-      reply(user);
-    });
+    util
+      .promisify(User.findById)
+      .apply(User, [id])
+      .then(user => reply(user))
+      .catch(err => reply(err));
   }
 };
 
@@ -244,7 +247,11 @@ module.exports.delete = {
   description: 'Delete user',
   notes: 'Delete user by ID (soft delete)',
   auth: {scope: [ 'admin' ]},
-  validate: { params: { id: Joi.string() } },
+  validate: {
+    params: {
+      id: Joi.string()
+    }
+  },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.params.id;

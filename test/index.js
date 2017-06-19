@@ -39,6 +39,10 @@ describe('Server', () => {
     // isInitialized() can be used to check the server's init state
     expect(LabbableServer.isInitialized()).to.equal(true);
 
+    describe('Application Flow', () => {
+      require('./modules/flow')(lab, server);
+    });
+    
     server.stop(done);
   });
 });
