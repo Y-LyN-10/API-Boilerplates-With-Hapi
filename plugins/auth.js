@@ -49,7 +49,9 @@ exports.register = function (server, pluginOptions, next) {
     
     const ttl = 60 * 45; // 45 minutes in seconds
     
-    redisInstance.set(account._id.toString(), JSON.stringify(account), ttl, console.log);
+    redisInstance.set(account._id + '', JSON.stringify(account), 'EX', ttl, (err) => {
+      if(err) server.log(['err', 'redis'], err); return;
+    });
 
     server.methods.generateTokens(account, tokens => {
       done(tokens);
@@ -57,7 +59,7 @@ exports.register = function (server, pluginOptions, next) {
   };
 
   const validateToken = function (decoded, request, callback) {
-    redisInstance.get(decoded.id.toString(), (err) => {
+    redisInstance.get(decoded.id.toString(), (err, reply) => {
       if(err) callback(null, false);
       callback(null, true);
     });
@@ -183,11 +185,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
-        console.log(request.headers);
-        console.log(request.isAuthenticated);
-        console.log(request.auth);
-        
-        request.yar.clear(request.auth.credentials.id);
+        redisInstance.DEL(request.auth.credentials.id, console.log);
         reply.redirect(request.query.next);
       }
     }

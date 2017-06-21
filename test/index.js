@@ -179,8 +179,6 @@ describe('Server', () => {
         expect(response.result.statusCode).to.be.equal(409);
         expect(response.result.error).to.be.equal("Conflict");
         expect(response.result.message).to.be.string;
-
-        console.log(response.result);
         
         done();
       });
@@ -189,7 +187,7 @@ describe('Server', () => {
 
   lab.describe('Authentication', () => {
     
-    lab.test("should fail with wrong password", function(done) {
+    lab.test.skip("should fail with wrong password", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",
@@ -273,7 +271,7 @@ describe('Server', () => {
       });
     });
 
-    lab.test.skip("should redirect to login after logout", function(done) {
+    lab.test("should redirect to login after logout", function(done) {
       let options = {
         method: "GET",
         url: "/auth/logout?next=/auth/login",
@@ -283,12 +281,12 @@ describe('Server', () => {
       };
       
       server.inject(options, function(response) {
-        console.log(response.result);
+        console.log(response.headers);
         
         expect(response.result).to.equal(null);
         expect(response.statusCode).to.equal(302);
         expect(response.headers.authorization).to.not.exist;
-        expect(response.headers.location).to.equal('/auth/logout');
+        expect(response.headers.location).to.equal('/auth/login');
 
         done();
       });
@@ -297,12 +295,15 @@ describe('Server', () => {
     // Should invalidate access token after logging out
 
     // Should require authentication to list users, view / update / delete user's profile and view / update my profile
+    // expect(result).to.be.instanceof(Array);
+    // expect(result).to.have.length(5);
+    // test pagination
     
     // Should be able to log in with the new password 
 
     // Should fail to login when already logged in
 
-    lab.test.skip("should be successful with valid refreshToken", function(done) {
+    lab.test("should be successful with valid refreshToken", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",

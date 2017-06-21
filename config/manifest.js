@@ -60,22 +60,9 @@ const manifest = {
       register: './plugins/redis',
       options: {
         partition: 'cache',
+        prefix: 'session:',
         host: envKey('redis_host'),
-        port: 6379,      // default
-        password: ''
-      }
-    }
-  }, {
-    plugin: {
-      register: 'yar',
-      options: {
-        storeBlank: false,
-        maxCookieSize: 0, // force server-side storage
-        cache: { cache: 'session' },
-        cookieOptions: {
-          password: envKey('jar_secret'),  // cookie password
-          isSecure: process.env.NODE_ENV === 'production'
-        }
+        port: 6379 // default
       }
     }
   }, {

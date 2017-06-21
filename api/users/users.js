@@ -218,7 +218,6 @@ module.exports.update = {
       .keys({
         firstName: Joi.string().min(2).max(255),
         lastName: Joi.string().min(2).max(255),
-
         // email: Joi.string().email(),
         image: Joi.string().uri().optional(),
         isActive: Joi.boolean(),
@@ -246,7 +245,7 @@ module.exports.delete = {
   tags: ['api', 'users'],
   description: 'Delete user',
   notes: 'Delete user by ID (soft delete)',
-  auth: false, //{scope: [ 'admin' ]},
+  auth: {scope: [ 'admin' ]},
   validate: {
     params: {
       id: Joi.string()
