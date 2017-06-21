@@ -59,8 +59,8 @@ exports.register = function (server, pluginOptions, next) {
   };
 
   const validateToken = function (decoded, request, callback) {
-    redisInstance.get(decoded.id.toString(), (err, reply) => {
-      if(err) callback(null, false);
+    redisInstance.get(decoded.id.toString(), (err, reply) => {      
+      if(err || !reply) callback(null, false);
       callback(null, true);
     });
   };
@@ -78,8 +78,6 @@ exports.register = function (server, pluginOptions, next) {
       algorithms: [ 'HS512' ]
     },
     errorFunc: function (err) {
-      console.log(err);
-      
       let errorContext = {
         errorType: 'unauthorized',
         message: err.message
@@ -100,7 +98,7 @@ exports.register = function (server, pluginOptions, next) {
       handler: function (request, reply) {
         // TODO: Test that! Maybe request.auth.credentials should be ckecked
         if (request.auth.isAuthenticated) {
-          return reply({message: 'Already logged in!'});
+          return reply(Boom.forbidden({message: 'Already logged in!'}));
         }
 
         var url = request.server.generate_google_oauth2_url();
@@ -115,9 +113,9 @@ exports.register = function (server, pluginOptions, next) {
     config: {
       tags: ['api', 'auth'],
       description: 'Login',
-      auth: false,
+      auth: {mode: 'try'},
       notes: 'Autnenticate with email and password to request JWT access token',
-      plugins: { 'hapi-rate-limit': { pathLimit: 3 } }, // limits even if the requests are successful
+      plugins: { 'hapi-rate-limit': { pathLimit: 6 } }, // limits even if the requests are successful
       validate: {
         payload: Joi.object()
           .keys({
@@ -133,9 +131,9 @@ exports.register = function (server, pluginOptions, next) {
         const User = request.server.plugins['hapi-mongo-models'].User;
         const body = request.payload;
 
-        // Validations
+        // Validations - check for abailable session maybe)
         if (request.auth.isAuthenticated) {
-          return reply('Already logged in !');
+          return reply(Boom.forbidden('Already logged in !'));
         }
 
         if (body.refreshToken) {
@@ -185,7 +183,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
-        redisInstance.DEL(request.auth.credentials.id, console.log);
+        redisInstance.DEL(request.auth.credentials.id);
         reply.redirect(request.query.next);
       }
     }
@@ -278,8 +276,6 @@ exports.register = function (server, pluginOptions, next) {
         
         JWT.verify(request.payload.token, RESET_PASS_SECRET, {algorithm: 'HS256'}, function (err, valid) {
           if (err) return reply(Boom.unauthorized(err));
-
-          console.log('error?', err);
 
           const decoded = JWT.decode(request.payload.token);
           const id = decoded.id;

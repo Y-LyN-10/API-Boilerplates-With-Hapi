@@ -186,8 +186,8 @@ describe('Server', () => {
   });
 
   lab.describe('Authentication', () => {
-    
-    lab.test.skip("should fail with wrong password", function(done) {
+
+    lab.test("should fail with wrong password", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",
@@ -227,7 +227,7 @@ describe('Server', () => {
         done();
       });
     });
-    
+
     lab.test("should be successful with correct credentials", function(done) {
       let options = {
         method: "POST",
@@ -252,58 +252,8 @@ describe('Server', () => {
       });
     });
 
-    lab.test("should log out with valid accessToken", function(done) {
-      let options = {
-        method: "GET",
-        url: "/auth/logout",
-        headers: {
-          Authorization: 'Bearer ' + accessToken
-        }
-      };
-      
-      server.inject(options, function(response) {
-        expect(response.result).to.equal(null);
-        expect(response.statusCode).to.equal(302);
-        expect(response.headers.authorization).to.not.exist;
-        expect(response.headers.location).to.not.exist;
-        
-        done();
-      });
-    });
-
-    lab.test("should redirect to login after logout", function(done) {
-      let options = {
-        method: "GET",
-        url: "/auth/logout?next=/auth/login",
-        headers: {
-          Authorization: 'Bearer ' + accessToken
-        }
-      };
-      
-      server.inject(options, function(response) {
-        console.log(response.headers);
-        
-        expect(response.result).to.equal(null);
-        expect(response.statusCode).to.equal(302);
-        expect(response.headers.authorization).to.not.exist;
-        expect(response.headers.location).to.equal('/auth/login');
-
-        done();
-      });
-    });
-
-    // Should invalidate access token after logging out
-
-    // Should require authentication to list users, view / update / delete user's profile and view / update my profile
-    // expect(result).to.be.instanceof(Array);
-    // expect(result).to.have.length(5);
-    // test pagination
-    
-    // Should be able to log in with the new password 
-
-    // Should fail to login when already logged in
-
-    lab.test("should be successful with valid refreshToken", function(done) {
+    // should invalidate the old tokens first!
+    lab.test.skip("should be successful with valid refreshToken", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",
@@ -323,21 +273,83 @@ describe('Server', () => {
         done();
       });
     });
+    
+    lab.test("should fail to login when already logged in", function(done) {
+      let options = {
+        method: "POST",
+        url: "/auth/login",
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        },
+        payload: {
+          email: registerUser.email,
+          password: registerUser.password
+        }
+      };
+      
+      server.inject(options, function(response) {
+        expect(response.statusCode).to.equal(403);
+
+        // TODO: expect Joi keys blah blah
+        
+        done();
+      });
+    });
+    
+    lab.test("should logout with valid session", function(done) {
+      let options = {
+        method: "GET",
+        url: "/auth/logout",
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        }
+      };
+      
+      server.inject(options, function(response) {
+        expect(response.result).to.equal(null);
+        expect(response.statusCode).to.equal(302);
+        expect(response.headers.authorization).to.not.exist;
+        expect(response.headers.location).to.not.exist;
+        
+        done();
+      });
+    });
+
+    lab.test("should fail to logout when not logged in", function(done) {
+      let options = {
+        method: "GET",
+        url: "/auth/logout",
+        headers: {
+          // that token should be invalidated already
+          Authorization: 'Bearer ' + accessToken 
+        }
+      };
+      
+      server.inject(options, function(response) {
+        expect(response.statusCode).to.equal(401);
+        done();
+      });
+      
+    });
+
+    // Should require authentication to list users, view / update / delete user's profile and view / update my profile
+    // expect(result).to.be.instanceof(Array);
+    // expect(result).to.have.length(5);
+    // test pagination
+    
+    // Should be able to log in with the new password 
 
     lab.test.skip("should fail to login with expired refreshToken", function(done) {
-      // TODO: Set timeout probably or hard-code expired token
-      // TODO: Session should not exist
+      // TODO: Set timeout probably or hard-code old, expired token
       done();
     });
 
     lab.test.skip("should fail with invalid refreshToken", function(done) {
       // TODO: Generate some string
-      // TODO: Session should not exist
       done();
     });
 
-    lab.test.skip("should fail even with valid refreshToken when user is logged out", function(done) {
-      // TODO: Session should not exist
+    lab.test.skip("should fail with valid refreshToken when user is logged out", function(done) {
       done();
     });
 
@@ -347,10 +359,35 @@ describe('Server', () => {
     });
 
     // Should fail with correct credentials after 3 wrong login attempts
-
   });
 
+
   lab.describe('User', () => {
+
+    lab.test("should authenticate again", function(done) {
+      let options = {
+        method: "POST",
+        url: "/auth/login",
+        payload: {
+          email: registerUser.email,
+          password: registerUser.password
+        }
+      };
+      
+      server.inject(options, function(response) {
+        expect(response.statusCode).to.equal(200);
+        expect(response.result.accessToken).to.be.string;
+        expect(response.result.refreshToken).to.be.string;
+        expect(response.headers.authorization).to.exist;
+        expect(response.headers.authorization.indexOf('Bearer') > -1);
+        
+        accessToken = response.result.accessToken;
+        refreshToken = response.result.refreshToken;
+
+        done();
+      });
+    });
+    
     // Should be able to change password
     lab.test.skip("should be able to change password", function(done) {
       // TODO: Session should not exist
@@ -373,6 +410,7 @@ describe('Server', () => {
 
     // Should be able to see / update / delete other user's profile
 
+    // have to login first
     lab.test("should delete user's profile", function(done) {
       let options = {
         method: 'DELETE',
@@ -384,6 +422,25 @@ describe('Server', () => {
       
       server.inject(options, function(response) {        
         expect(response.statusCode).to.equal(200);
+
+        done();
+      });
+    });
+
+    lab.test("should redirect to login after logout", function(done) {
+      let options = {
+        method: "GET",
+        url: "/auth/logout?next=/auth/login",
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        }
+      };
+      
+      server.inject(options, function(response) {        
+        expect(response.result).to.equal(null);
+        expect(response.statusCode).to.equal(302);
+        expect(response.headers.authorization).to.not.exist;
+        expect(response.headers.location).to.equal('/auth/login');
 
         done();
       });

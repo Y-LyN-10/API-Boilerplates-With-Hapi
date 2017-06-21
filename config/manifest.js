@@ -4,7 +4,7 @@ const fs     = require('fs');
 
 const manifest = {
   server: {
-    debug: {request: [ 'error' ]},
+    debug: process.env.NODE_ENV !== 'development' ? false : { request: [ 'error' ]},
     cache: {
       engine: require('catbox-redis'),
       name: 'session',

@@ -15,4 +15,4 @@ services:
 build:
   stage: test
   script:
-    - lab -c
+    - lab -v
