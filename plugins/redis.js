@@ -10,7 +10,7 @@ exports.register = function (server, pluginOptions, next) {
     next();
   });
 
-  var redisClient = redis.createClient();
+  var redisClient = redis.createClient(pluginOptions);
   redisClient.on("error", function (err) {
     console.log("Error " + err);
   });
