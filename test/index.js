@@ -30,6 +30,9 @@ describe('Server', () => {
 
   let testUser = Object.assign({}, registerUser);
 
+  let accessToken;
+  let refreshToken;
+
   before((done) => {
     // Callback fires once the server is initialized
     // or immediately if the server is already initialized
@@ -55,8 +58,6 @@ describe('Server', () => {
   });
 
   lab.it('is up and running', (done) => {
-    let accessToken;
-    let refreshToken;
 
     lab.test("should pass the health check", function(done) {
       var options = { method: "GET",  url: "/health" };
@@ -71,9 +72,6 @@ describe('Server', () => {
   });
 
   lab.describe('Registration', () => {
-      /* Registration
-         - Should fail with existing email (use admin user's email, for example)
-      */
 
     lab.test("should fail with empty payload", function(done) {
       var options = {
@@ -190,15 +188,13 @@ describe('Server', () => {
   });
 
   lab.describe('Authentication', () => {
-    let accessToken;
-    let refreshToken;
     
-    lab.test.skip("should fail with wrong password", function(done) {
+    lab.test("should fail with wrong password", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: 'super.yu@webidscan.com',
+          email: registerUser.email,
           password: 'alabala'
         }
       };
@@ -214,12 +210,12 @@ describe('Server', () => {
       });
     });
 
-    lab.test.skip("should fail with non-existing user", function(done) {
+    lab.test("should fail with non-existing user", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: 'super.yulia@webidscan.com',
+          email: 'non-existing@user44sgfd5fd.com',
           password: 'testTEST1'
         }
       };
@@ -234,17 +230,83 @@ describe('Server', () => {
       });
     });
     
-    lab.test.skip("should be successful with correct credentials", function(done) {
-      // TODO: insert a new user directly to the database during the test
-      // Not it's assumed that the user is already seed-ed
-      
-      var options = {
+    lab.test("should be successful with correct credentials", function(done) {
+      let options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: 'super.yu@webidscan.com',
-          password: 'testTEST1'
+          email: registerUser.email,
+          password: registerUser.password
         }
+      };
+      
+      server.inject(options, function(response) {
+        expect(response.statusCode).to.equal(200);
+        expect(response.result.accessToken).to.be.string;
+        expect(response.result.refreshToken).to.be.string;
+        expect(response.headers.authorization).to.exist;
+        expect(response.headers.authorization.indexOf('Bearer') > -1);
+        
+        accessToken = response.result.accessToken;
+        refreshToken = response.result.refreshToken;
+
+        done();
+      });
+    });
+
+    lab.test("should log out with valid accessToken", function(done) {
+      let options = {
+        method: "GET",
+        url: "/auth/logout",
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        }
+      };
+      
+      server.inject(options, function(response) {
+        expect(response.result).to.equal(null);
+        expect(response.statusCode).to.equal(302);
+        expect(response.headers.authorization).to.not.exist;
+        expect(response.headers.location).to.not.exist;
+        
+        done();
+      });
+    });
+
+    lab.test.skip("should redirect to login after logout", function(done) {
+      let options = {
+        method: "GET",
+        url: "/auth/logout?next=/auth/login",
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        }
+      };
+      
+      server.inject(options, function(response) {
+        console.log(response.result);
+        
+        expect(response.result).to.equal(null);
+        expect(response.statusCode).to.equal(302);
+        expect(response.headers.authorization).to.not.exist;
+        expect(response.headers.location).to.equal('/auth/logout');
+
+        done();
+      });
+    });
+
+    // Should invalidate access token after logging out
+
+    // Should require authentication to list users, view / update / delete user's profile and view / update my profile
+    
+    // Should be able to log in with the new password 
+
+    // Should fail to login when already logged in
+
+    lab.test.skip("should be successful with valid refreshToken", function(done) {
+      var options = {
+        method: "POST",
+        url: "/auth/login",
+        payload: {refreshToken}
       };
       
       server.inject(options, function(response) {
@@ -254,10 +316,79 @@ describe('Server', () => {
 
         accessToken = response.result.accessToken;
         refreshToken = response.result.refreshToken;
+
+        // TODO: Session should be created with user id
         
         done();
       });
     });
+
+    lab.test.skip("should fail to login with expired refreshToken", function(done) {
+      // TODO: Set timeout probably or hard-code expired token
+      // TODO: Session should not exist
+      done();
+    });
+
+    lab.test.skip("should fail with invalid refreshToken", function(done) {
+      // TODO: Generate some string
+      // TODO: Session should not exist
+      done();
+    });
+
+    lab.test.skip("should fail even with valid refreshToken when user is logged out", function(done) {
+      // TODO: Session should not exist
+      done();
+    });
+
+    lab.test.skip("should fail when no payload is sent in the request", function(done) {
+      // will fail with Joi and never reach the "No payload provided" line in the handler
+      done();
+    });
+
+    // Should fail with correct credentials after 3 wrong login attempts
+
+  });
+
+  lab.describe('User', () => {
+    // Should be able to change password
+    lab.test.skip("should be able to change password", function(done) {
+      // TODO: Session should not exist
+      done();
+    });
+   
+    // Should be able to see / update user's own profile
+    
+    // Should require authorization (admin rights) to list / get /update other users
+
+    // Should fail to see his own profile when access token is expired
+
+    // Should return temporary token to restore password
+
+    // Should be able to change the forgotten password with a new one (with valid token)
+
+    // Should be able to login with the new password
+    
+    // Should authenticate with another (admin) user (insert it to the database directly from here)
+
+    // Should be able to see / update / delete other user's profile
+
+    lab.test("should delete user's profile", function(done) {
+      let options = {
+        method: 'DELETE',
+        url: '/api/users/' + testUser._id,
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        }
+      };
+      
+      server.inject(options, function(response) {        
+        expect(response.statusCode).to.equal(200);
+
+        done();
+      });
+    });
+
+    // Should not be able to login when the profile is banned
   });
   
   after((done) => {

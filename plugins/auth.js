@@ -9,6 +9,8 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
 const RESET_PASS_SECRET = 'add another ENV variable later';
 
 exports.register = function (server, pluginOptions, next) {
+  const redisInstance = server.plugins.redis.client;  
+
   const generateResetPasswordToken = function (user, done) {
     let session = {
       id: user._id,
@@ -44,20 +46,21 @@ exports.register = function (server, pluginOptions, next) {
   const authenticate = function (request, account, done) {
     const sid = uuid();
     account.sid = sid;
-    request.yar.set(account._id.toString(), {account});
-    request.auth.isAuthenticated = true;
     
+    const ttl = 60 * 45; // 45 minutes in seconds
+    
+    redisInstance.set(account._id.toString(), JSON.stringify(account), ttl, console.log);
+
     server.methods.generateTokens(account, tokens => {
       done(tokens);
     });
   };
 
   const validateToken = function (decoded, request, callback) {
-    if (request.yar.get(decoded.id)) {
+    redisInstance.get(decoded.id.toString(), (err) => {
+      if(err) callback(null, false);
       callback(null, true);
-    } else {
-      callback(null, false);
-    }
+    });
   };
 
   server.method('authenticate', authenticate);
@@ -65,7 +68,7 @@ exports.register = function (server, pluginOptions, next) {
   server.method('generateTokens', generateTokens);
 
   // JWT Token Auth - required for all routes by default
-  server.auth.strategy('jwt', 'jwt', 'try', {
+  server.auth.strategy('jwt', 'jwt', true, {
     key: pluginOptions.secret,
     validateFunc: validateToken,
     verifyOptions: {
@@ -73,6 +76,8 @@ exports.register = function (server, pluginOptions, next) {
       algorithms: [ 'HS512' ]
     },
     errorFunc: function (err) {
+      console.log(err);
+      
       let errorContext = {
         errorType: 'unauthorized',
         message: err.message
@@ -178,6 +183,10 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
+        console.log(request.headers);
+        console.log(request.isAuthenticated);
+        console.log(request.auth);
+        
         request.yar.clear(request.auth.credentials.id);
         reply.redirect(request.query.next);
       }

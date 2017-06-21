@@ -246,7 +246,7 @@ module.exports.delete = {
   tags: ['api', 'users'],
   description: 'Delete user',
   notes: 'Delete user by ID (soft delete)',
-  auth: {scope: [ 'admin' ]},
+  auth: false, //{scope: [ 'admin' ]},
   validate: {
     params: {
       id: Joi.string()
@@ -266,7 +266,7 @@ module.exports.delete = {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
 
-      reply(user);
+      reply();
     });
   }
 };
