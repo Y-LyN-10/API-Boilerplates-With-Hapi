@@ -15,7 +15,9 @@ const expect = Code.expect;
 
 // Test the server
 const LabbableServer = require("../server.js");
-const MongoClient = require('mongodb').MongoClient;
+
+// seed the database
+const userSeeder = require('../db/seeders/users');
 
 describe('Server', () => {
   let connections;
@@ -46,8 +48,11 @@ describe('Server', () => {
 
       connections = serverInstance;
       server = connections.select('api');
-      
-      return done();
+
+      userSeeder.Seed(() => {
+        return done();
+      });
+
     });
   });
 
@@ -409,7 +414,44 @@ describe('Server', () => {
 
   });
 
+  lab.describe('Users', () => {
+    lab.test.skip("should require authentication to list", function(done) {
+      done();
+    });
+
+    lab.test.skip("should require authorization to list", function(done) {
+      done();
+    });
+
+    lab.test.skip("should list users with default settings", function(done) {
+      /* Check:
+         - isArray
+         - has pagination
+         - has limit
+         ...
+      */
+      done();
+    });
+    
+    lab.test.skip("should list users with pagination", function(done) {
+      done();
+    });
+    
+    lab.test.skip("should list users with sorting", function(done) {
+      done();
+    });
+
+    lab.test.skip("should list users with query", function(done) {
+      done();
+    });
+
+    lab.test.skip("should list users with filter", function(done) {
+      done();
+    });
+  });
+  
   lab.describe('Authenticated user', () => {
+    
     // Should require authentication to list users, view / update / delete user's profile and view / update my profile
 
     // Should be able to list users with pagination
@@ -444,36 +486,20 @@ describe('Server', () => {
 
   lab.describe('Admin', () => {
     before((done) => {
-      // Connect using MongoClient
-      MongoClient.connect(process.env.MONGO_URI, function(err, db) {
-        var users = db.collection('users');
-        
-        // Insert user with admin rights
-        users.insert({
-          email : "admin@hapi-api.lab",
-          name  : "Admin",
-          scope: 'admin',
-          password : "$2a$08$R7bVYrspDbmKnj/4Z7rYbOliGJs4Fe9EjKh/H5PYLrdjM5Iw.rp0K"
-        }, (err, result) => {
-          admin = result;
-          db.close();
-          
-          let options = {
-            method: "POST",
-            url: "/auth/login",
-            payload: {
-              email: 'admin@hapi-api.lab',
-              password: 'testTEST1'
-            }
-          };
-          
-          server.inject(options, function(response) {
-            adminAccessToken = response.result.accessToken;
-            
-            done();
-          });
-
-        });
+   
+      let options = {
+        method: "POST",
+        url: "/auth/login",
+        payload: {
+          // this user is in the seeders
+          email: 'admin@hapi-api.lab',
+          password: 'testTEST1'
+        }
+      };
+      
+      server.inject(options, function(response) {
+        adminAccessToken = response.result.accessToken;
+        done();
       });
     });
 
@@ -559,14 +585,8 @@ describe('Server', () => {
   });
   
   after((done) => {
-    MongoClient.connect(process.env.MONGO_URI, function(err, db) {
-      var users = db.collection('users');
-      
-      // remove all users
-      users.remove({}, (err, result) => {
-        db.close();
-        connections.stop(done);
-      });
+    userSeeder.Reset(() => {
+      connections.stop(done);
     });
   });
 });
