@@ -21,6 +21,7 @@ class User extends MongoModels {
     const user = {
       scope: 'user',
       isActive: true,
+      isAdmin: false,
       timeCreated: new Date()
     };
 
@@ -86,7 +87,8 @@ User.schema = Joi.object().keys({
   },
   scope: Joi.string().allow('admin', 'user').default('user'),
   timeCreated: Joi.date(),
-  isActive: true
+  isActive: true,
+  isAdmin: false
 });
 
 User.indexes = [

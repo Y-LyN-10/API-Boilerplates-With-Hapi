@@ -27,9 +27,10 @@ exports.register = function (server, pluginOptions, next) {
       email : user.email,
       name  : user.name,
       id    : user._id,
-
+      sid   : user.sid,
+      
       // Scope determines user's access rules for auth
-      scope : [ user.scope || user.isAdmin ? 'admin' : 'user' ]
+      scope : [ user.scope || (user.isAdmin ? 'admin' : 'user') ]
     };
 
     // Short session - 30 minute
@@ -44,12 +45,12 @@ exports.register = function (server, pluginOptions, next) {
   };
 
   const authenticate = function (request, account, done) {
-    const sid = uuid();
+    const sid = uuid().toString();
     account.sid = sid;
     
     const ttl = 60 * 45; // 45 minutes in seconds
     
-    redisInstance.set(account._id + '', JSON.stringify(account), 'EX', ttl, (err) => {
+    redisInstance.set(sid, JSON.stringify(account), 'EX', ttl, (err) => {
       if(err) server.log(['err', 'redis'], err); return;
     });
 
@@ -59,7 +60,7 @@ exports.register = function (server, pluginOptions, next) {
   };
 
   const validateToken = function (decoded, request, callback) {
-    redisInstance.get(decoded.id.toString(), (err, reply) => {      
+    redisInstance.get(decoded.sid.toString(), (err, reply) => {      
       if(err || !reply) callback(null, false);
       callback(null, true);
     });
@@ -115,7 +116,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Login',
       auth: {mode: 'try'},
       notes: 'Autnenticate with email and password to request JWT access token',
-      plugins: { 'hapi-rate-limit': { pathLimit: 6 } }, // limits even if the requests are successful
+      plugins: { 'hapi-rate-limit': { pathLimit: 10 } }, // limits even if the requests are successful
       validate: {
         payload: Joi.object()
           .keys({
@@ -183,7 +184,7 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
-        redisInstance.DEL(request.auth.credentials.id);
+        redisInstance.DEL(request.auth.credentials.sid);
         reply.redirect(request.query.next);
       }
     }

@@ -244,7 +244,7 @@ module.exports.update = {
 module.exports.delete = {
   tags: ['api', 'users'],
   description: 'Delete user',
-  notes: 'Delete user by ID (soft delete)',
+  notes: 'Delete user by ID',
   auth: {scope: [ 'admin' ]},
   validate: {
     params: {
@@ -254,13 +254,8 @@ module.exports.delete = {
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.params.id;
-
-    /* Issue: I deleted my own admin account and was still able to use
-              the API with the access token, even though the user does
-              not exist anymore */
-
+    
     // This is not 'soft delete' btw
-
     User.findByIdAndDelete(id, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
