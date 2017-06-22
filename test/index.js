@@ -365,7 +365,7 @@ describe('Server', () => {
       server.inject(options, function(response) {
         expect(response.statusCode).to.equal(401);
         expect(response.result.error).to.equal('Unauthorized');
-        expect(response.result.message).to.equal('jwt expired');
+        expect(response.result.message.indexOf('jwt expired') > -1);
         
         done();
       });
@@ -384,7 +384,7 @@ describe('Server', () => {
       server.inject(options, function(response) {
         expect(response.statusCode).to.equal(401);
         expect(response.result.error).to.equal('Unauthorized');
-        expect(response.result.message).to.equal('invalid signature');
+        expect(response.result.message.indexOf('invalid signature') > -1);
         
         done();
       });
