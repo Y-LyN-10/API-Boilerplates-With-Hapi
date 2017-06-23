@@ -3,6 +3,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const Bcrypt = require('bcrypt');
 const User = require('../models/user.js');
+const MONGO_URI = process.env.NODE_ENV === 'test' ? process.env.MONGO_URI_TEST : process.env.MONGO_URI;
 
 var users = [
   {"name":"Admin","scope":true,"email":"admin@hapi-api.lab","password":"testTEST1"},
@@ -120,7 +121,7 @@ users.map(u => {
 
 module.exports.Seed = function(done) {
   // Connect using MongoClient
-  MongoClient.connect(process.env.MONGO_URI, function(err, db) {
+  MongoClient.connect(MONGO_URI, function(err, db) {
     var Users = db.collection('users');
 
     // Clean the collection first
@@ -140,7 +141,7 @@ module.exports.Seed = function(done) {
 
 module.exports.Reset = function(done) {
   // Connect using MongoClient
-  MongoClient.connect(process.env.MONGO_URI, function(err, db) {
+  MongoClient.connect(MONGO_URI, function(err, db) {
     var Users = db.collection('users');
 
     // Clean the collection first

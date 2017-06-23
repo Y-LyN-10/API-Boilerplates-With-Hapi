@@ -1,7 +1,5 @@
 'use strict';
 
-process.env.NODE_ENV = 'test';
-
 const Code = require('code');
 const Boom = require('boom');
 const Lab = require('lab');

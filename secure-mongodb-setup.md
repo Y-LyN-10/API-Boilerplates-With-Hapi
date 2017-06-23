@@ -20,7 +20,7 @@ $ mongo
 When the authentication is enabled, you will need that user to create other users, grant or revoke access, perform different operations and manage your local database in general.
 
 
-## 2. Following the principle of least privilege, please create a new user with 'readWrite' role to the database, associated with the project.
+## 2. Following the principle of least privilege, please create a new users with 'readWrite' role to each database, associated with the project.
 
 *Example:*
 
@@ -28,6 +28,9 @@ When the authentication is enabled, you will need that user to create other user
 $ mongo
 > use hapi-api-database
 > db.createUser({user: "hapiAPI", pwd: "strongPass123", roles: [{role: "readWrite", db: "hapi-api-database"}]});
+
+> use hapi-api-test-db
+> db.createUser({user: "hapiAPI", pwd: "strongPass123", roles: [{role: "readWrite", db: "hapi-api-test-db"}]});
 ```
 
 ## 3. Re-start the MongoDB instance with access control (check the exact command for your OS). 

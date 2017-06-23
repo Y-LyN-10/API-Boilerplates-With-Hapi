@@ -14,6 +14,10 @@ const envKey = key => {
     email_password: process.env.GMAIL_PASSWORD
   };
 
+  if(env === 'test') {
+    configuration.mongo_uri = process.env.MONGO_URI_TEST;
+  }
+  
   return configuration[key];
 };
 
