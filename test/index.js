@@ -20,8 +20,14 @@ const userSeeder = require('../db/seeders/users');
 describe('Server', () => {
   let connections;
   let server;
+
+  let adminUser = userSeeder.users[0];
+  let adminAccessToken;
   
-  let registerUser = {
+  let randomUser = userSeeder.users[Math.floor((Math.random() * 100) + 1)];
+  console.log('Testing with:\n', randomUser, '\n');
+  
+  let newUser = {
     firstName: 'Hello',
     lastName: 'Test',
     email: 'teST@hapi-api.lab',
@@ -29,14 +35,11 @@ describe('Server', () => {
     passwordConfirmation: 'testTEST1'
   };
 
-  let testUser = Object.assign({}, registerUser);
-
+  let createdUser = Object.assign({}, newUser);
+  
   let initialAccessToken;
   let accessToken;
   let refreshToken;
-  
-  let adminAccessToken;
-  let admin;
   
   before((done) => {
     // Callback fires once the server is initialized
@@ -79,147 +82,14 @@ describe('Server', () => {
     return done();
   });
 
-  lab.describe('Registration', () => {
-    
-    lab.test("should fail with empty payload", function(done) {
-      var options = {
-        method: "POST",
-        url: "/api/users"
-      };
-      
-      // server.inject lets you simulate an http request
-      server.inject(options, function(response) {
-        expect(response.statusCode).to.equal(400);
-        expect(response.result.statusCode).to.be.equal(400);
-        expect(response.result.error).to.be.equal("Bad Request");
-        expect(response.result.message).to.be.string;
-        expect(response.result.validation.source === 'payload');
-
-        done();
-      });
-    });
-
-    lab.test("should fail with bad password", function(done) {
-      var options = {
-        method: "POST",
-        url: "/api/users",
-        payload: {
-          firstName: 'Hello',
-          lastName: 'Test',
-          email: 'test@hapi-api.lab',
-          password: '123456'
-        }
-      };
-      
-      // server.inject lets you simulate an http request
-      server.inject(options, function(response) {
-        expect(response.statusCode).to.equal(400);
-        expect(response.result.statusCode).to.be.equal(400);
-        expect(response.result.error).to.be.equal("Bad Request");
-        expect(response.result.message).to.be.string;
-        expect(response.result.validation.source === 'payload');
-        expect(response.result.validation.keys.indexOf('password') > -1);
-        
-        done();
-      });
-    });
-
-    lab.test("should fail with invalid email", function(done) {
-      var options = {
-        method: "POST",
-        url: "/api/users",
-        payload: {
-          firstName: 'Hello',
-          lastName: 'Test',
-          email: 'test-hapi-api.lab',
-          password: 'testTEST1',
-          passwordConfirmation: 'testTEST1'
-        }
-      };
-      
-      // server.inject lets you simulate an http request
-      server.inject(options, function(response) {
-        expect(response.statusCode).to.equal(400);
-        expect(response.result.statusCode).to.be.equal(400);
-        expect(response.result.error).to.be.equal("Bad Request");
-        expect(response.result.message).to.be.string;
-        expect(response.result.validation.source === 'payload');
-        expect(response.result.validation.keys.indexOf('email') > -1);
-        
-        done();
-      });
-    });
-
-    lab.test("should create user with correct payload given", function(done) {
-      var options = {
-        method: "POST",
-        url: "/api/users",
-        payload: registerUser
-      };
-      
-      // server.inject lets you simulate an http request
-      server.inject(options, function(response) {
-        expect(response.statusCode).to.equal(201);
-        expect(response.result._id).to.exist();
-        expect(response.result.name).to.equal(testUser.firstName + ' ' + testUser.lastName);
-        expect(response.result.email).to.equal(testUser.email.toLowerCase());
-        
-        testUser._id = response.result._id;
-
-        // TODO
-        // expect(response.result.password).to.not.exist();
-        
-        done();
-      });
-    });
-
-    lab.test("should fail to create user with the same email", function(done) {
-      
-      var options = {
-        method: "POST",
-        url: "/api/users",
-        payload: registerUser
-      };
-      
-      // server.inject lets you simulate an http request
-      server.inject(options, function(response) {
-        expect(response.statusCode).to.equal(409);
-        expect(response.result.statusCode).to.be.equal(409);
-        expect(response.result.error).to.be.equal("Conflict");
-        expect(response.result.message).to.be.string;
-        
-        done();
-      });
-    });
-  });
-
-  lab.describe('Authentication', () => {
-
-    lab.test("should fail with empty payload", function(done) {
-      var options = {
-        method: "POST",
-        url: "/auth/login",
-        payload: {}
-      };
-      
-      // server.inject lets you simulate an http request
-      server.inject(options, function(response) {
-        expect(response.statusCode).to.equal(400);
-        expect(response.result.statusCode).to.be.equal(400);
-        expect(response.result.error).to.be.equal("Bad Request");
-        expect(response.result.message).to.be.string;
-        expect(response.result.validation.source === 'payload');
-        
-        done();
-      });
-    });
+  lab.describe('\nAuthentication', () => {
 
     lab.test("should fail with wrong password", function(done) {
       var options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: registerUser.email,
+          email: randomUser.email,
           password: 'alabala'
         }
       };
@@ -260,12 +130,12 @@ describe('Server', () => {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: registerUser.email,
-          password: registerUser.password
+          email: randomUser.email,
+          password: randomUser.password
         }
       };
       
-      server.inject(options, function(response) {
+      server.inject(options, function(response) {        
         expect(response.statusCode).to.equal(200);
         expect(response.result.accessToken).to.be.string;
         expect(response.result.refreshToken).to.be.string;
@@ -309,8 +179,8 @@ describe('Server', () => {
           Authorization: 'Bearer ' + accessToken
         },
         payload: {
-          email: registerUser.email,
-          password: registerUser.password
+          email: randomUser.email,
+          password: randomUser.password
         }
       };
       
@@ -409,68 +279,7 @@ describe('Server', () => {
         done();
       });
     });
-
-  });
-
-  lab.describe('Users', () => {
-    lab.test.skip("should require authentication to list", function(done) {
-      done();
-    });
-
-    lab.test.skip("should require authorization to list", function(done) {
-      done();
-    });
-
-    lab.test.skip("should list users with default settings", function(done) {
-      /* Check:
-         - isArray
-         - has pagination
-         - has limit
-         ...
-      */
-      done();
-    });
-    
-    lab.test.skip("should list users with pagination", function(done) {
-      done();
-    });
-    
-    lab.test.skip("should list users with sorting", function(done) {
-      done();
-    });
-
-    lab.test.skip("should list users with query", function(done) {
-      done();
-    });
-
-    lab.test.skip("should list users with filter", function(done) {
-      done();
-    });
-  });
-  
-  lab.describe('Authenticated user', () => {
-    
-    // Should require authentication to list users, view / update / delete user's profile and view / update my profile
-
-    // Should be able to list users with pagination
-    // expect(result).to.be.instanceof(Array);
-    // expect(result).to.have.length(5);
-    // test pagination
-    
-    // Should be able to see / update user's own profile
-    
-    // Should be able to change password
-    lab.test.skip("should be able to change his password", function(done) {
-      // TODO: Session should not exist
-      done();
-    });
-
-    // Should be able to log in with the new password
-    
-    // Should require authorization (admin rights) to list / get /update other users
-
-    // Should fail to see his own profile when access token is expired
-
+   
     // Should return temporary token to restore password
 
     // Should be able to change the forgotten password with a new one (with valid token)
@@ -479,19 +288,16 @@ describe('Server', () => {
     
     // Should authenticate with another (admin) user (insert it to the database directly from here)
 
-    // Should be able to see / update / delete other user's profile
   });
 
-  lab.describe('Admin', () => {
+  lab.describe('\nAPI', () => {
     before((done) => {
-   
       let options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          // this user is in the seeders
-          email: 'admin@hapi-api.lab',
-          password: 'testTEST1'
+          email: adminUser.email,
+          password: adminUser.password
         }
       };
       
@@ -500,25 +306,200 @@ describe('Server', () => {
         done();
       });
     });
-
-    lab.test("should be able to delete another user's profile", function(done) {
-      let options = {
-        method: 'DELETE',
-        url: '/api/users/' + testUser._id,
-        headers: {
-          Authorization: 'Bearer ' + adminAccessToken
-        }
-      };
+    
+    lab.describe('POST /api/users', () => {
       
-      server.inject(options, function(response) {        
-        expect(response.statusCode).to.equal(200);
+      lab.test("should fail to create user with empty payload", function(done) {
+        var options = {
+          method: "POST",
+          url: "/api/users"
+        };
+        
+        // server.inject lets you simulate an http request
+        server.inject(options, function(response) {
+          expect(response.statusCode).to.equal(400);
+          expect(response.result.statusCode).to.be.equal(400);
+          expect(response.result.error).to.be.equal("Bad Request");
+          expect(response.result.message).to.be.string;
+          expect(response.result.validation.source === 'payload');
 
+          done();
+        });
+      });
+      
+      lab.test("should fail to create user with bad password", function(done) {
+        var options = {
+          method: "POST",
+          url: "/api/users",
+          payload: {
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            email: newUser.email,
+            password: '123456'
+          }
+        };
+        
+        // server.inject lets you simulate an http request
+        server.inject(options, function(response) {
+          expect(response.statusCode).to.equal(400);
+          expect(response.result.statusCode).to.be.equal(400);
+          expect(response.result.error).to.be.equal("Bad Request");
+          expect(response.result.message).to.be.string;
+          expect(response.result.validation.source === 'payload');
+          expect(response.result.validation.keys.indexOf('password') > -1);
+          
+          done();
+        });
+      });
+
+      lab.test("should fail to create user with invalid email", function(done) {
+        var options = {
+          method: "POST",
+          url: "/api/users",
+          payload: {
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            email: 'test-hapi-api.lab',
+            password: newUser.password,
+            passwordConfirmation: newUser.passwordConfirmation
+          }
+        };
+        
+        // server.inject lets you simulate an http request
+        server.inject(options, function(response) {
+          expect(response.statusCode).to.equal(400);
+          expect(response.result.statusCode).to.be.equal(400);
+          expect(response.result.error).to.be.equal("Bad Request");
+          expect(response.result.message).to.be.string;
+          expect(response.result.validation.source === 'payload');
+          expect(response.result.validation.keys.indexOf('email') > -1);
+          
+          done();
+        });
+      });
+
+      lab.test("should create user with correct payload given", function(done) {
+        var options = {
+          method: "POST",
+          url: "/api/users",
+          payload: newUser
+        };
+        
+        // server.inject lets you simulate an http request
+        server.inject(options, function(response) {
+          expect(response.statusCode).to.equal(201);
+          expect(response.result._id).to.exist();
+          expect(response.result.name).to.equal(newUser.firstName + ' ' + newUser.lastName);
+          expect(response.result.email).to.equal(newUser.email.toLowerCase());
+
+          createdUser._id = response.result._id;
+          
+          // TODO
+          // expect(response.result.password).to.not.exist();
+          
+          done();
+        });
+      });
+
+      lab.test("should fail to create user with the same email", function(done) {
+        
+        var options = {
+          method: "POST",
+          url: "/api/users",
+          payload: newUser
+        };
+        
+        // server.inject lets you simulate an http request
+        server.inject(options, function(response) {
+          expect(response.statusCode).to.equal(409);
+          expect(response.result.statusCode).to.be.equal(409);
+          expect(response.result.error).to.be.equal("Conflict");
+          expect(response.result.message).to.be.string;
+          
+          done();
+        });
+      });
+      
+    });
+
+    lab.describe('GET /api/users', () => {
+      
+      lab.test.skip("should require authentication", function(done) {
         done();
       });
+
+      lab.test.skip("should require authorization", function(done) {
+        done();
+      });
+
+      lab.test.skip("should list users with default settings", function(done) {
+        /* Check:
+           - isArray
+           - has pagination
+           - has limit
+           ...
+        */
+        done();
+      });
+      
+      lab.test.skip("should list users with pagination", function(done) {
+        done();
+      });
+      
+      lab.test.skip("should list users with sorting", function(done) {
+        done();
+      });
+
+      lab.test.skip("should list users with query", function(done) {
+        done();
+      });
+
+      lab.test.skip("should list users with filter", function(done) {
+        done();
+      });
+
     });
+
+    lab.describe('GET /api/users/profile', () => {});
+
+    lab.describe('PUT /api/users/profile', () => {});
+
+    lab.describe('PUT /api/users/password', () => {
+      
+      lab.test.skip("should be able to change user's own password", function(done) {
+        // TODO: Session should not exist
+        done();
+      });
+      
+    });
+
+    lab.describe('GET /api/users/{id}', () => {
+      // Should require authorization (admin rights) to list / get /update other users
+    });
+
+    lab.describe('PUT /api/users/{id}', () => {});
+
+    lab.describe('DELETE /api/users/{id}', () => {
+      lab.test("should be able to delete another user's profile", function(done) {
+        let options = {
+          method: 'DELETE',
+          url: '/api/users/' + createdUser._id,
+          headers: {
+            Authorization: 'Bearer ' + adminAccessToken
+          }
+        };
+        
+        server.inject(options, function(response) {        
+          expect(response.statusCode).to.equal(200);
+
+          done();
+        });
+      });
+    });
+
   });
 
-  lab.describe('Authentication later', () => {
+  lab.describe('\nAuthentication', () => {
     lab.test("should redirect to given 'next' path on logout", function(done) {
       let options = {
         method: "GET",
@@ -537,34 +518,38 @@ describe('Server', () => {
         done();
       });
     });
-    
-    lab.test.skip("should fail when the user is deleted", function(done) {
+
+    lab.test("should fail when the user is deleted", function(done) {
       let options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: registerUser.email,
-          password: registerUser.password
+          email: createdUser.email,
+          password: createdUser.password
         }
       };
-      
+
       server.inject(options, function(response) {
         expect(response.statusCode).to.equal(400);
         expect(response.result.statusCode).to.be.equal(400);
         expect(response.result.error).to.be.equal("Bad Request");
         expect(response.result.message).to.be.string;
-        
+
         done();
       });
     });
+
+    // Should be able to log in with changed password
     
-    lab.test.skip("should fail with correct credentials after 10 login attempts in a minute", function(done) {
+    lab.test("should fail with correct credentials after 10 login attempts in a minute", function(done) {
+      let user = userSeeder.users[1];
+      
       let options = {
         method: "POST",
         url: "/auth/login",
         payload: {
-          email: 'yulia.tenincheva@mentormate.com', //registerUser.email,
-          password: 'testTEST1' // registerUser.password
+          email: user.email,
+          password: user.password
         }
       };
       
@@ -579,16 +564,15 @@ describe('Server', () => {
         done();
       });
     });
-    
+
   });
-  
+
   after((done) => {
     userSeeder.Reset(() => {
       connections.stop(done);
     });
   });
 });
-
 
 
 

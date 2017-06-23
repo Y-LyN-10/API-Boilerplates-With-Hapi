@@ -7,7 +7,7 @@ exports.register = (plugin, options, next) => {
     { method: 'POST',   path: '/', config: Users.create },
 
     // For Users
-    { method: 'GET', path: '/me',       config: Users.viewProfile },
+    { method: 'GET', path: '/profile',  config: Users.viewProfile },
     { method: 'PUT', path: '/profile',  config: Users.updateProfile },
     { method: 'PUT', path: '/password', config: Users.updatePassword },
 
