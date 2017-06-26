@@ -25,7 +25,7 @@ module.exports.list = {
   },
   handler: function (request, reply) {
     const User  = request.server.plugins['hapi-mongo-models'].User;
-    const filterByKeys = ['isActive', 'name', 'scope'];
+    const filterByKeys = ['isActive', 'firstName', 'scope'];
 
     // pass only 'search' criteria
     const criteria = filterByKeys.reduce((result, key) => {
@@ -51,7 +51,7 @@ module.exports.list = {
 module.exports.create = {
   tags: ['api', 'users'],
   description: 'Create a new user',
-  notes: 'Create a new user (non-admin) with name, email and password.',
+  notes: 'Create a new user (non-admin) with first & last name, email and password.',
   auth: false,
   validate: {
     payload: {
@@ -67,20 +67,28 @@ module.exports.create = {
 
     User.findByEmail(request.payload.email, (err, user) => {
       if (err) return reply(err);
-
-      // TODO: Merge google & local accounts
       if (user) return reply(Boom.conflict('Email already in use.'));
 
       let data = {
-        name: request.payload.firstName + ' ' + request.payload.lastName,
+        firstName: request.payload.firstName,
+        lastName:request.payload.lastName,
         email: request.payload.email,
         password: User.generatePasswordHash(request.payload.password)
       };
 
       // Use the local strategy
       User.create(data, 'local', (onCreateError, newUser) => {
-        if (onCreateError) return reply(onCreateError);
-        reply(newUser).code(201);
+        if (onCreateError) {
+          console.log(onCreateError);
+          return reply(onCreateError);
+        }
+        
+        let response = newUser.profile;
+        response._id = newUser._id;
+        response.email = newUser.email;
+        response.timeCreated = newUser.timeCreated;
+        
+        reply(response).code(201);
       });
     });
   }
@@ -93,7 +101,7 @@ module.exports.viewProfile = {
   auth: {scope: ['user', 'admin']},
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-    const fields = User.fieldsAdapter('name email image timeCreated');
+    const fields = User.fieldsAdapter('profile email _id timeCreated');
     const id = request.auth.credentials.id.toString();
 
     // Example how to use promises with Mongo Models:
@@ -123,12 +131,12 @@ module.exports.updateProfile = {
     const id = request.auth.credentials.id.toString();
     const update = request.payload;
 
-    // TODO: Fix name / firstName + lastName inconsistencies
-
     User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
       if (!user) return reply(Boom.notFound('User not found'));
 
+      delete user.password;
+      
       reply(user);
     });
   }
@@ -152,14 +160,10 @@ module.exports.updatePassword = {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.auth.credentials.id.toString();
 
-    /* TODO:
-       1. Limit to 3 failed attempts (with wrong old password) in a single day
-       2. Send an email that the password had been changed or has 3 failed attempts
-       3. More logging: The server should always log attempts to change passwords
-       whether they are successful or not. It should log the user's information but
-       not any passwords entered or their hashes. It should note whether the change
-       succeeded or failed.
-       4. Add CAPTCHA
+    /* TODO: Limit to 3 failed attempts (with wrong old password) in a single day
+       TODO: Send an email that the password had been changed or has 3 failed attempts
+       TODO: More logging: The server should always log attempts to change passwords whether they are successful or not. It should log the user's information but not any passwords entered or their hashes. It should note whether the change succeeded or failed.
+       TODO: Add reCAPTCHA
     */
 
     User.findById(id, (err, user) => {
@@ -176,6 +180,8 @@ module.exports.updatePassword = {
         if (err) return reply(err);
         if (!user) return reply(Boom.notFound('User not found'));
 
+        delete user.password;
+        
         reply(user);
       });
     });
@@ -194,12 +200,12 @@ module.exports.get = {
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
-    const fields = User.fieldsAdapter('_id name email image scope isActive timeCreated');
+    const fields = User.fieldsAdapter('_id email profile scope isActive timeCreated');
     const id = request.params.id;
 
     util
       .promisify(User.findById)
-      .apply(User, [id])
+      .apply(User, [ id ])
       .then(user => reply(user))
       .catch(err => reply(err));
   }
@@ -229,8 +235,7 @@ module.exports.update = {
     const id = request.params.id;
     const update = request.payload;
 
-    // TODO: Fix name / firstName + lastName inconsistencies
-    // TODO: Check email for uniqueness
+    // TODO: If changing email -> check it for uniqueness
 
     User.findByIdAndUpdate(id, { $set: update }, (err, user) => {
       if (err) return reply(err);
@@ -254,7 +259,7 @@ module.exports.delete = {
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-mongo-models'].User;
     const id = request.params.id;
-    
+
     // This is not 'soft delete' btw
     User.findByIdAndDelete(id, (err, user) => {
       if (err) return reply(err);

@@ -23,10 +23,26 @@ module.exports = function (request, reply, googleTokens, profile) {
         request.server.log([], err);
         return reply(Boom.badRequest());
       }
-
+      
       // This user already exist in the database
       if (user) {
-        // TODO: Update user's profile - it's possible that the user is merging accounts
+        // Merge local account with google+
+        if(!user.google_id) {
+          let update = {
+            google_id: profile.id,
+            profile: {
+              emails   : profile.emails,
+              firstName: user.profile.firstName || profile.name.givenName,
+              lastName : user.profile.lastName || profile.name.familyName,
+              gender   : profile.gender,
+              language : profile.language,
+              image    : profile.image.url,
+              ageRange : profile.ageRange
+            }
+          }
+
+          util.promisify(User.findByIdAndUpdate).apply(User, [user._id,  {$set: update}]);
+        }
         
         request.server.methods.authenticate(request, user, tokens => {
           return reply

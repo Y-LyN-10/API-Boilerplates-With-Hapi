@@ -37,6 +37,7 @@ const manifest = {
     tls: {
       key: fs.readFileSync('config/.keys/key.pem'),
       cert: fs.readFileSync('config/.keys/cert.pem')
+
       // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
     },
     routes: {
@@ -125,7 +126,7 @@ const manifest = {
     plugin: {
       register: 'inert'
     }
-  }, { 
+  }, {
     plugin: {
       register: './plugins/nodemailer',
       options: {
@@ -138,7 +139,7 @@ const manifest = {
         }
       }
     }
-  }, { 
+  }, {
     plugin: {
       register: './plugins/health-check',
       options: {}

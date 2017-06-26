@@ -9,7 +9,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,255}$/;
 const RESET_PASS_SECRET = 'add another ENV variable later';
 
 exports.register = function (server, pluginOptions, next) {
-  const redisInstance = server.plugins.redis.client;  
+  const redisInstance = server.plugins.redis.client;
 
   const generateResetPasswordToken = function (user, done) {
     let session = {
@@ -28,7 +28,7 @@ exports.register = function (server, pluginOptions, next) {
       name  : user.name,
       id    : user._id,
       sid   : user.sid,
-      
+
       // Scope determines user's access rules for auth
       scope : [ user.scope || (user.isAdmin ? 'admin' : 'user') ]
     };
@@ -47,11 +47,11 @@ exports.register = function (server, pluginOptions, next) {
   const authenticate = function (request, account, done) {
     const sid = uuid().toString();
     account.sid = sid;
-    
+
     const ttl = 60 * 45; // 45 minutes in seconds
-    
+
     redisInstance.set(sid, JSON.stringify(account), 'EX', ttl, (err) => {
-      if(err) server.log(['err', 'redis'], err); return;
+      if (err) server.log(['err', 'redis'], err); return;
     });
 
     server.methods.generateTokens(account, tokens => {
@@ -60,8 +60,8 @@ exports.register = function (server, pluginOptions, next) {
   };
 
   const validateToken = function (decoded, request, callback) {
-    redisInstance.get(decoded.sid.toString(), (err, reply) => {      
-      if(err || !reply) callback(null, false);
+    redisInstance.get(decoded.sid.toString(), (err, reply) => {
+      if (err || !reply) callback(null, false);
       callback(null, true);
     });
   };
@@ -264,17 +264,17 @@ exports.register = function (server, pluginOptions, next) {
 
         /* TODO: Integrate server-side checking for reCAPTCHA
 
-           When your users submit the form where you integrated reCAPTCHA, you'll get as 
-           part of the payload a string with the name "g-recaptcha-response". In order to 
-           check whether Google has verified that user, send a POST request with these 
+           When your users submit the form where you integrated reCAPTCHA, you'll get as
+           part of the payload a string with the name "g-recaptcha-response". In order to
+           check whether Google has verified that user, send a POST request with these
            parameters:
 
            URL: https://www.google.com/recaptcha/api/siteverify
            secret (required)	6LdzJyUUAAAAANAnox4Voy-oMfUQ4z9I12SJd0v1
            response (required)	The value of 'g-recaptcha-response'.
-           remoteip	        The end user's ip address. 
+           remoteip	        The end user's ip address.
         */
-        
+
         JWT.verify(request.payload.token, RESET_PASS_SECRET, {algorithm: 'HS256'}, function (err, valid) {
           if (err) return reply(Boom.unauthorized(err));
 
@@ -292,9 +292,8 @@ exports.register = function (server, pluginOptions, next) {
 
             const transporter = request.server.plugins.nodemailer.client;
 
-            // TODO: Refactoring. Load email templates from somewhere else
-            // ATTENTION: in case there is no email address, the server shuts down due to error
-            
+            // FIXME: in case there is no email address, the server shuts down due to error
+
             let options = {
               from: '"MentorMate Server" <happy.server@mentormate.com>',
               to: user.email,

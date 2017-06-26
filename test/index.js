@@ -386,16 +386,16 @@ describe('Server', () => {
         };
         
         // server.inject lets you simulate an http request
-        server.inject(options, function(response) {
+        server.inject(options, function(response) {          
           expect(response.statusCode).to.equal(201);
           expect(response.result._id).to.exist();
-          expect(response.result.name).to.equal(newUser.firstName + ' ' + newUser.lastName);
+          expect(response.result.firstName).to.equal(newUser.firstName);
+          expect(response.result.lastName).to.equal(newUser.lastName);
           expect(response.result.email).to.equal(newUser.email.toLowerCase());
-
-          createdUser._id = response.result._id;
+          expect(response.result.timeCreated).to.exist();
+          expect(response.result.password).to.not.exist();
           
-          // TODO
-          // expect(response.result.password).to.not.exist();
+          createdUser._id = response.result._id;
           
           done();
         });

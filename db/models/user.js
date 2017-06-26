@@ -15,45 +15,46 @@ class User extends MongoModels {
   }
 
   static create (profile, strategy, callback) {
-    // TODO: Add validation for mentormate.com domain. It's in profile.domain
-
     // base
     const user = {
       scope: 'user',
       isActive: true,
       isAdmin: false,
+      profile: {},
       timeCreated: new Date()
     };
 
     if (strategy === 'local') {
       user.email    = profile.email.toLowerCase();
-      user.name     = profile.name;
       user.password = profile.password;
+      user.profile.firstName = profile.firstName;
+      user.profile.lastName = profile.lastName;
     }
 
     // if authenticated via google
     if (strategy === 'google') {
-      user.email = profile.emails[0].value.toLowerCase();
-      user.name  = profile.name.givenName + ' ' +  profile.name.familyName;
+      console.log(profile);
 
-      user.google_profile = {
+      user.email = profile.emails[0].value.toLowerCase();
+      user.google_id = profile.id;
+
+      user.profile = {
         emails   : profile.emails,
         firstName: profile.name.givenName,
         lastName : profile.name.familyName,
-        id       : profile.id,
+        gender   : profile.gender,
+        language : profile.language,
         image    : profile.image.url,
-        language : profile.language
+        ageRange : profile.ageRange
       };
     }
 
+    // To set default values
     Joi.validate(user, this.schema, (err, value) => {
-      if (err) {
-        // FIXME: In development. Just log the error for now
-        console.log(err);
-      }
+      if (err) console.log(err); //
 
-      // TODO: Filter the response keys and do not send the password back      
       this.insertOne(value, (err, results) => {
+        delete results[0].password;
         callback(err, results[0]);
       });
     });
@@ -74,16 +75,17 @@ User.collection = 'users';
 
 User.schema = Joi.object().keys({
   _id: Joi.object(),
+  google_id:Joi.string(),
   email: Joi.string().email().lowercase().required(),
-  name: Joi.string(),
   password: Joi.string().allow(null),
-  google_profile: {
+  profile: {
     emails: Joi.array(),
     firstName: Joi.string().allow(''),
     lastName: Joi.string().allow(''),
-    id: Joi.string(),
+    gender: Joi.string(),
     image: Joi.string(),
-    language: Joi.string().allow('')
+    language: Joi.string(),
+    ageRange: Joi.object()
   },
   scope: Joi.string().allow('admin', 'user').default('user'),
   timeCreated: Joi.date(),

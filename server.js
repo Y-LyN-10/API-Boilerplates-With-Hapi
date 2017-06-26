@@ -21,7 +21,7 @@ Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {
     relativeTo: __dirname + '/public',
     path: 'templates'
   });
-  
+
   server.initialize((initErr) => {
     if (initErr) throw initErr;
 
