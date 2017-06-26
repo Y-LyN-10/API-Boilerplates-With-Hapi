@@ -293,9 +293,11 @@ exports.register = function (server, pluginOptions, next) {
             const transporter = request.server.plugins.nodemailer.client;
 
             // TODO: Refactoring. Load email templates from somewhere else
+            // ATTENTION: in case there is no email address, the server shuts down due to error
+            
             let options = {
               from: '"MentorMate Server" <happy.server@mentormate.com>',
-              to: request.payload.email,
+              to: user.email,
               subject: 'Yout password has been changed',
               html: '<p>Your password in "Hapi API Boilerplate Project" has been changed successfully.</p><br/><p>If you did not change your password, then you\'re screwed.</p>',
               text: ''

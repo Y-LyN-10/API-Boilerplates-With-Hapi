@@ -42,7 +42,7 @@ General idea and todo-list:
         + :white_check_mark: Forgot / Reset Password functionality API
         + :white_check_mark: Send emails forgot password / password changed
         + :white_medium_square: CAPTCHA on user registration / change password pages
-        + :white_medium_square: Link google account with local and vice-versa
+        + :white_medium_square: Link google account to a local one (with different email addresses)
         + :white_check_mark: Delete user
     
 * :white_medium_square: Neo4j Graph Database

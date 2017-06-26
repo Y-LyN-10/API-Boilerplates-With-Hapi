@@ -26,6 +26,8 @@ module.exports = function (request, reply, googleTokens, profile) {
 
       // This user already exist in the database
       if (user) {
+        // TODO: Update user's profile - it's possible that the user is merging accounts
+        
         request.server.methods.authenticate(request, user, tokens => {
           return reply
             .redirect('/', tokens)
