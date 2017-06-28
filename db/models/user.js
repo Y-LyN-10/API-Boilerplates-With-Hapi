@@ -66,16 +66,23 @@ const users = [{
   id: 1,
   email: 'john@company.com',
   password: 'supersafe',
-  name: 'John'
+  name: 'John',
+  scope: 'admin'
 }, {
   id: 2,
   email: 'jack@company.com',
   password: 'megasafe',
-  name: 'Jack'
+  name: 'Jack',
+  scope: 'user'
 }];
 
 module.exports = {
-  findAll: () => (users.map((user) => ({ id: user.id, email: user.email, name: user.name }))),
+  findAll: () => (users.map((user) => ({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    scope: user.scope
+  }))),
   findByEmail: (email) => (
     users.find((user) => user.email === email)
   ),

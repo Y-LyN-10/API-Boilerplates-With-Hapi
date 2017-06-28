@@ -55,7 +55,7 @@ const manifest = {
     plugin: {
       register: 'hapi-sequelize',
       options: {
-        name: 'hapi_api_db',
+        name: 'hapidb',
         models: [ './db/models/*.js' ],
         //  sync: true, // will drop the Users table and re-create it.
         //  forceSync: true,

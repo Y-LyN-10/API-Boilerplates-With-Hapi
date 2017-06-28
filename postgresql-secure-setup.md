@@ -37,5 +37,5 @@ postgres=# \q
 
 ```
 sequelize db:migrate
-sequelize db:seed
+sequelize db:seed:all
 ```

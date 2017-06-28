@@ -108,8 +108,8 @@ exports.register = function (server, pluginOptions, next) {
       validate: {
         payload: Joi.object()
           .keys({
-            email: Joi.string().email(),
-            password: Joi.string().min(8).max(200),
+            email: Joi.string().email().example('john@company.com'),
+            password: Joi.string().min(8).max(200).example('supersafe'),
             refreshToken: Joi.string().optional().allow('')
           })
           .with('email', 'password')
@@ -120,7 +120,7 @@ exports.register = function (server, pluginOptions, next) {
 
         // TODO: Replace fake users with real model & database
 
-        const User = require('../db/models/user.model');
+        const User = require('../db/models/user');
 
         // Validations
 
