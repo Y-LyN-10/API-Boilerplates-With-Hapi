@@ -1,7 +1,25 @@
 Quick start API with Hapi
 ===
 
-General idea and todo-list:
+The goal is to create a production ready boilerplate in Hapi.js covering the most basic functionalities that occur in every project like authentication, registration, user management, caching, environment configurations, documentation, etc... but also following the best development and security practices.
+
+:sparkles: Feel free to open an issue to suggest new functionality, report a bug or just ask a question! :sparkles: 
+
+## Build
+
+### Pre-requisites and used versions during development:
+- Node.js: v8.1.0
+- MongoDB: v3.4.3
+- Redis server: v3.2.9
+- PostgreSQL: v9.6.3
+
+[![npm version](https://badge.fury.io/js/npm.svg)](https://badge.fury.io/js/npm)
+
+
+Feature List
+===
+
+## General idea and todo-list:
 
 **Base features:** (on *master* branch)
 * :white_check_mark: Composable plugins with Glue
@@ -24,7 +42,7 @@ General idea and todo-list:
 **Branching:**
 * Users Model & CRUD 
     - :white_medium_square: with Sequelize & Relational Database
-        + :white_medium_square: Setup configurations, user model, seeder and migrations
+        + :white_check_mark: Setup configurations, user model, seeder and migrations
         + :white_medium_square: Login/Register with Google Account
         + :white_medium_square: List users with pagination, filters and sorting
         + :white_medium_square: User login/registration with password (hashed & salted)
@@ -42,7 +60,9 @@ General idea and todo-list:
         + :white_check_mark: Forgot / Reset Password functionality API
         + :white_check_mark: Send emails forgot password / password changed
         + :white_medium_square: CAPTCHA on user registration / change password pages
-        + :white_medium_square: Link google account with local and vice-versa
+        + :white_medium_square: Link google account to a local one (with different email addresses)
         + :white_check_mark: Delete user
     
 * :white_medium_square: Neo4j Graph Database
+
+**Tip:** If you want to contribute and you're wondering where to start from, you can also check the "//TODO"-s in the code. Install [leasot](https://github.com/pgilad/leasot) cli tool and run `npm run todo` to list all tasks.

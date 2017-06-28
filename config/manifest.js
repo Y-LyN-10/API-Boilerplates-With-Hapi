@@ -2,6 +2,8 @@ const envKey = require('./env');
 const Path   = require('path');
 const fs     = require('fs');
 
+const Sequelize = require('sequelize');
+
 const manifest = {
   server: {
     debug: {request: [ 'error' ]},
@@ -50,6 +52,26 @@ const manifest = {
     router: {stripTrailingSlash: true}
   }],
   registrations: [{
+    plugin: {
+      register: 'hapi-sequelize',
+      options: {
+        name: 'hapi_api_db',
+        models: [ './db/models/*.js' ],
+        //  sync: true, // will drop the Users table and re-create it.
+        //  forceSync: true,
+        debug: true,
+        sequelize: new Sequelize({
+          database: envKey('db').database,
+          username: envKey('db').username,
+          password: envKey('db').password,
+          dialect:  envKey('db').dialect,
+          logging:  () => envKey('db').logging, // should be a function or false
+          host: envKey('db').host || envKey('host'),
+          seederStorage: 'sequelize'
+        })
+      }
+    }
+  }, {
     plugin: {
       register: './plugins/redis',
       options: {

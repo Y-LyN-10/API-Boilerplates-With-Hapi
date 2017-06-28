@@ -1,5 +1,6 @@
 const envKey = key => {
   const env = process.env.NODE_ENV || 'development';
+  const db  = require('./db');
   
   const configuration = {
     host: process.env.HOST,
@@ -7,7 +8,8 @@ const envKey = key => {
     jwt_secret: process.env.JWT_SECRET,
     jar_secret: process.env.JAR_SECRET,
     google_client_id: process.env.GOOGLE_CLIENT_ID,
-    google_client_secret: process.env.GOOGLE_CLIENT_SECRET
+    google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    db: Object.assign({}, db[env])
   };
 
   return configuration[key];
