@@ -42,7 +42,7 @@ Feature List
 **Branching:**
 * Users Model & CRUD 
     - :white_medium_square: with Sequelize & Relational Database
-        + :white_check_mark: [Setup](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/blob/with-sequelize/postgresql-secure-setup.md)) configurations, user model, seeder and migrations
+        + :white_check_mark: [Setup](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/blob/with-sequelize/postgresql-secure-setup.md) configurations, user model, seeder and migrations
         + :white_medium_square: Login/Register with Google Account
         + :white_medium_square: List users with pagination, filters and sorting
         + :white_medium_square: User login/registration with password (hashed & salted)
