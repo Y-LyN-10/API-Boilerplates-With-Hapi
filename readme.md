@@ -41,15 +41,8 @@ Feature List
 
 **Branching:**
 * Users Model & CRUD 
-    - :white_medium_square: with Sequelize & Relational Database
-        + :white_check_mark: [Setup](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/blob/with-sequelize/postgresql-secure-setup.md) configurations, user model, seeder and migrations
-        + :white_medium_square: Login/Register with Google Account
-        + :white_medium_square: List users with pagination, filters and sorting
-        + :white_medium_square: User login/registration with password (hashed & salted)
-        + :white_medium_square: Update user's profile & password functionality
-        + :white_medium_square: Link google account with local and vice-versa
-        + :white_medium_square: Soft delete user
-    - :white_medium_square: with MongoDB (*with-mongodb* git branch)
+    - :white_medium_square: with [Sequelize & Relational Database](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/tree/with-sequelize)
+    - :white_medium_square: with MongoDB (*current* git branch)
         + :white_check_mark: Setup configurations, user model (passwordless)
         + :white_check_mark: Login/Register with Google Account
         + :white_medium_square: Implement registration validation by Email
