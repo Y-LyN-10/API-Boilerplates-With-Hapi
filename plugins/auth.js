@@ -5,12 +5,15 @@ const Boom = require('boom');
 const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
-exports.register = function (server, pluginOptions, next) {  
+exports.register = function (server, pluginOptions, next) {
+  const redisInstance = server.plugins.redis.client;
+
   const generateTokens = function(user, done) {
     let session = {
       email : user.email,
       name  : user.name,
       id    : user.id,
+      sid   : user.sid,
 
       // Scope determines user's access rules for auth
       scope : [ user.scope || user.isAdmin ? 'admin' : 'user' ]
@@ -28,27 +31,24 @@ exports.register = function (server, pluginOptions, next) {
   }
   
   const authenticate = function(request, account, done) {
-    const sid = uuid();
+    const sid = uuid().toString();
     account.sid = sid;
-    request.yar.set(account.id.toString(), {account});
-    
+
+    const ttl = 60 * 45; // 45 minutes in seconds
+
+    redisInstance.set(sid, JSON.stringify(account), 'EX', ttl, (err) => {
+      if (err) server.log(['err', 'redis'], err); return;
+    });
+
     server.methods.generateTokens(account, tokens => {
       done(tokens);
     });
   }
   
   const validateToken = function (decoded, request, callback) {
-    if (request.yar.get(decoded.id)) {
+    redisInstance.get(decoded.sid.toString(), (err, reply) => {
+      if (err || !reply) callback(null, false);
       callback(null, true);
-    } else {
-      callback(null, false);
-    }
-  };
-
-  const verifyToken = function (decoded, request, callback) {
-    JWT.verify(request.auth.token, pluginOptions.secret, function (err, valid) {
-      if (err) { return callback(err, false);}
-      validateToken(decoded, request, callback);
     });
   };
 
@@ -58,7 +58,7 @@ exports.register = function (server, pluginOptions, next) {
   
   // JWT Token Auth - required for all routes by default
   server.auth.strategy('jwt', 'jwt', true, {
-    verifyFunc: verifyToken,
+    key: pluginOptions.secret,
     validateFunc: validateToken,
     verifyOptions: {
       ignoreExpiration: false,
@@ -84,12 +84,11 @@ exports.register = function (server, pluginOptions, next) {
       notes: 'Autnenticate with Google',
       handler: function (request, reply) {
         if (request.auth.isAuthenticated) {
-          return reply('Already logged in !');
-        } else {
-          var url = request.server.generate_google_oauth2_url();
-          console.log(url);
-          return reply.redirect(url);
+          return reply(Boom.forbidden({message: 'Already logged in!'}));
         }
+
+        var url = request.server.generate_google_oauth2_url();
+        reply.redirect(url);
       }
     }
   });
@@ -117,30 +116,49 @@ exports.register = function (server, pluginOptions, next) {
           .or('refreshToken', ['email', 'password'])
       },
       handler: function (request, reply) {
-
-        // TODO: Replace fake users with real model & database
-
-        const User = require('../db/models/user');
-
-        // Validations
-
+        const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
+        const body = request.payload;
+        
         if (request.auth.isAuthenticated) {
           return reply('Already logged in !');
         }
 
-        if (!request.payload || !request.payload.email || !request.payload.password) {
-          return reply(Boom.unauthorized('Email or password invalid...'));
+        if (body.refreshToken) {
+          // Validate the refresh token
+          JWT.verify(body.refreshToken, pluginOptions.secret, function (jwtErr, decoded) {
+            if (jwtErr) {
+              return reply(Boom.unauthorized(jwtErr));
+            }
+
+            validateToken(decoded, request, function (err, isValid) {
+              if (err || !isValid) {
+                return reply(Boom.unauthorized('Session expired or has been closed by the user'));
+              }
+
+              User.find({where: {id}}).then(function (user) {
+                if (user === null) {
+                  return reply(Boom.badRequest('User not found'));
+                }
+                
+                server.methods.authenticate(request, user, tokens => {
+                  return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+                });
+                
+               }).catch((err) => reply(err));
+              
+            });
+          });
+        } else {
+          User.findOne({where: {email: body.email.toLowerCase(), isActive: true}}).then(user => {
+            if (!user || !user.validPassword(body.password)) {
+              return reply(Boom.badRequest('Sorry, wrong email or password'));
+            }
+
+            server.methods.authenticate(request, user, tokens => {
+              reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+            });
+          });
         }
-
-        let user = User.findByEmail(request.payload.email);
-
-        if (request.payload.password !== user.password) {
-          return reply(Boom.unauthorized('Email or Password invalid...'));
-        }
-
-        server.methods.authenticate(request, user, tokens => {
-          return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
-        });
       }
     }
   });
@@ -153,8 +171,8 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
-        request.yar.clear(request.auth.credentials.id);
-        return reply('User successfully logged out');
+        redisInstance.DEL(request.auth.credentials.sid);
+        reply.redirect(request.query.next);
       }
     }
   });
