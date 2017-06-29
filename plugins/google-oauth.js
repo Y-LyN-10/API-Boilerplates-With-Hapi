@@ -15,31 +15,39 @@ module.exports = function(request, reply, tokens, profile) {
       agent     : request.headers['user-agent']
     };
 
-    const User = require('../db/models/user.model');
-    const user = User.findByEmail(session.email);
+    const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
 
-    console.log(session.email);
-    
-    // This user already exist in the database
-    if(user) {
-      request.server.methods.authenticate(request, user, tokens => {
-        return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
-      });
-    } else {
-      console.log(profile);
-      
-      User.create(profile, (err, user) => {
-        if(err) {
-          request.server.log([], err);
-          return reply(Boom.badRequest('Failed to create a user'));
-        }
+    const attributes = ['id', 'name', 'email'];
 
+    User.find({where: {email: session.email}, attributes}).then(function (user) {
+      if (user === null) {
+        let data = {
+          name: session.firstName + ' ' + session.lastName,
+          email: session.email,
+          google_id: session.id
+        };
+        
+        return User.create(data).then(function (user) {
+          let plain = user.get({plain:true});
+         
+          request.server.methods.authenticate(request, plain, tokens => {
+            return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+          });
+          
+        }).catch((err) => {
+          return reply({
+            statusCode: 400,
+            message: err.message,
+            errors: err.errors
+          }).code(400);
+        });
+      } else {
+        // TODO: Update user if found
         request.server.methods.authenticate(request, user, tokens => {
           return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
         });
-        
-      });
-    }
+      }
+    }).catch((err) => reply(err));
   } else {
     return reply(Boom.badRequest());
   }
