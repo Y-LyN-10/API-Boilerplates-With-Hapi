@@ -84,7 +84,7 @@ exports.register = function (server, pluginOptions, next) {
       notes: 'Autnenticate with Google',
       handler: function (request, reply) {
         if (request.auth.isAuthenticated) {
-          return reply(Boom.forbidden({message: 'Already logged in!'}));
+          return reply(Boom.forbidden('Already logged in!'));
         }
 
         var url = request.server.generate_google_oauth2_url();
@@ -102,7 +102,7 @@ exports.register = function (server, pluginOptions, next) {
       auth: false,
       notes: 'Autnenticate with email and password to request JWT access token',
       plugins: {
-        'hapi-rate-limit': { pathLimit: 3 }
+        'hapi-rate-limit': { pathLimit: 10 }
       },
       validate: {
         payload: Joi.object()
@@ -120,7 +120,7 @@ exports.register = function (server, pluginOptions, next) {
         const body = request.payload;
         
         if (request.auth.isAuthenticated) {
-          return reply('Already logged in !');
+          return reply(Boom.forbidden('Already logged in !'));
         }
 
         if (body.refreshToken) {
@@ -143,10 +143,9 @@ exports.register = function (server, pluginOptions, next) {
                 server.methods.authenticate(request, user, tokens => {
                   return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
                 });
-                
-               }).catch((err) => reply(err));
-              
+              });            
             });
+            
           });
         } else {
           User.findOne({where: {email: body.email.toLowerCase(), isActive: true}}).then(user => {
@@ -155,9 +154,9 @@ exports.register = function (server, pluginOptions, next) {
             }
 
             server.methods.authenticate(request, user, tokens => {
-              reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
+              return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
             });
-          }).catch((err) => reply(err));
+          });
         }
       }
     }
@@ -172,7 +171,7 @@ exports.register = function (server, pluginOptions, next) {
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
         redisInstance.DEL(request.auth.credentials.sid);
-        reply.redirect(request.query.next);
+        return reply.redirect(request.query.next);
       }
     }
   });

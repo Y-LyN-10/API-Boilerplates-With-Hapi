@@ -6,7 +6,7 @@ const Sequelize = require('sequelize');
 
 const manifest = {
   server: {
-    debug: {request: [ 'error' ]},
+    debug: process.env.NODE_ENV !== 'development' ? false : { request: [ 'error' ]},
     cache: {
       engine: require('catbox-redis'),
       name: 'session',
@@ -126,18 +126,6 @@ const manifest = {
   }, {
     plugin: './api/users',
     options: { routes: { prefix: '/api/users' }}
-  }, {
-    plugin: {
-      register: 'good',
-      options: {
-        ops: false,
-        reporters: {
-          console: [{
-            module: 'good-console'
-          }, 'stdout']
-        }
-      }
-    }
   }]
 };
 
@@ -164,7 +152,24 @@ if(manifest.connections.length === 1) {
     }
   });
 }
-  
+
+// Exclude logs from production and tests
+if (process.env.NODE_ENV === 'development') {
+  manifest.registrations.push({
+    plugin: {
+      register: 'good',
+      options: {
+        ops: false,
+        reporters: {
+          console: [{
+            module: 'good-console'
+          }, 'stdout']
+        }
+      }
+    }
+  });
+}
+
 if (process.env.NODE_ENV !== 'production') {
   // Display the routes table on startup
   manifest.registrations.push({

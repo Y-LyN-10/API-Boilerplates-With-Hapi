@@ -1,4 +1,4 @@
 module.exports = {
-    coverage: true,
-    lint: true
+    coverage: false,
+    lint: false
 };
