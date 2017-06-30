@@ -135,7 +135,7 @@ exports.register = function (server, pluginOptions, next) {
                 return reply(Boom.unauthorized('Session expired or has been closed by the user'));
               }
 
-              User.find({where: {id: decoded.id}}).then(function (user) {
+              User.find({where: {id: decoded.id, isActive: true}}).then(function (user) {
                 if (user === null) {
                   return reply(Boom.badRequest('User not found'));
                 }
