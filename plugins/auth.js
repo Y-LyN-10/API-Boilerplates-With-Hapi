@@ -107,8 +107,8 @@ exports.register = function (server, pluginOptions, next) {
       validate: {
         payload: Joi.object()
           .keys({
-            email: Joi.string().email().example('john@company.com'),
-            password: Joi.string().min(8).max(200).example('supersafe'),
+            email: Joi.string().email().example('admin@hapi-api.lab'),
+            password: Joi.string().min(8).max(200).example('testTEST1'),
             refreshToken: Joi.string().optional().allow('')
           })
           .with('email', 'password')
@@ -135,7 +135,7 @@ exports.register = function (server, pluginOptions, next) {
                 return reply(Boom.unauthorized('Session expired or has been closed by the user'));
               }
 
-              User.find({where: {id}}).then(function (user) {
+              User.find({where: {id: decoded.id}}).then(function (user) {
                 if (user === null) {
                   return reply(Boom.badRequest('User not found'));
                 }
@@ -157,7 +157,7 @@ exports.register = function (server, pluginOptions, next) {
             server.methods.authenticate(request, user, tokens => {
               reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
             });
-          });
+          }).catch((err) => reply(err));
         }
       }
     }

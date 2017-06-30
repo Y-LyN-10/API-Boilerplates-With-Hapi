@@ -25,15 +25,18 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'user'
     }
   }, {
-    classMethods: {
-      associate: function (models) {
+    // classMethods: {
+      // associate: function (models) {
         // associations can be defined here
         // User.hasOne(models.Session);
-      }
-    },
+      // }
+    // },
+    
     indexes: [ {unique: true, fields: [ 'email' ]} ],
+    
     // timestamps: true,
     // paranoid: false,
+    
     instanceMethods: {
       generateHash: function (password) {
         return Bcrypt.hashSync(password, Bcrypt.genSaltSync(8), null);

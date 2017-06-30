@@ -39,15 +39,13 @@ module.exports.list = {
       User.findAll(options).then(function (items) {
         reply({ page, offset, total, items, next, prev });
       });
-    }).catch((err) => {
-      return reply(err);
-    });
-  }
+    }).catch((err) => reply(err));
+ }
 };
 
 module.exports.create = {
   tags: ['api', 'users'],
-  auth: {scope: [ 'admin' ]},
+  auth: false,
   description: 'Create a new user',
   notes: 'Create a new user (non-admin) with name, email and password.',
   validate: {
@@ -74,13 +72,7 @@ module.exports.create = {
 
       reply(plain);
 
-    }).catch((err) => {
-      return reply({
-        statusCode: 400,
-        message: err.message,
-        errors: err.errors
-      }).code(400);
-    });
+    }).catch((err) => reply(err));
   }
 };
 
