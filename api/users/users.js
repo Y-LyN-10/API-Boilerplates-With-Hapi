@@ -76,6 +76,118 @@ module.exports.create = {
   }
 };
 
+module.exports.viewProfile = {
+  tags: ['api', 'users'],
+  auth: {scope: [ 'user', 'admin' ]},
+  description: 'My Profile',
+  notes: 'User can request his own profile data on this route',
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
+    const id   = request.auth.credentials.id.toString();
+
+    const attributes = ['id', 'name', 'email', 'createdAt', 'updatedAt'];
+
+    User.find({where: {id}, attributes}).then(function (user) {
+      if (user === null) {
+        return reply(Boom.badRequest('User not found'));
+      }
+
+      return reply(user);
+      
+    }).catch((err) => reply(err));
+  }
+};
+
+module.exports.updateProfile = {
+  tags: ['api', 'users'],
+  auth: {scope: [ 'admin' ]},
+  description: 'Update user',
+  notes: 'Update an existing non-admin user. See below for details and examples.',
+  validate: {
+    payload: {
+      name: Joi.string().min(2).max(255).optional().allow('').example('Foxy Lady')
+    }
+  },
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
+    const id   = request.auth.credentials.id.toString();
+    const data = request.payload;
+
+    const attributes = ['id', 'name', 'email', 'isAdmin', 'createdAt', 'updatedAt'];
+
+    User.find({where: {id}, attributes}).then(function (user) {
+      if (user === null) {
+        return reply(Boom.badRequest('User not found'));
+      }
+
+      return user.update(data).then(function (updated) {
+
+        let plain = updated.get({plain: true});
+        if (plain.password) {
+          plain.passwordUpdated = true;
+          delete plain.password;
+        } else {
+          plain.passwordUpdated = false;
+        }
+
+        delete plain.isAdmin;
+
+        return reply(plain);
+      });
+    }).catch((err) => {
+      return reply(err);
+    });
+  }
+};
+
+module.exports.updatePassword = {
+  tags: ['api', 'users'],
+  auth: {scope: [ 'admin' ]},
+  description: 'Update user',
+  notes: 'Update an existing non-admin user. See below for details and examples.',
+  validate: {
+    payload: Joi.object()
+      .keys({
+        oldPassword: Joi.string().regex(passwordRegex).optional(),
+        newPassword: Joi.string().regex(passwordRegex).optional(),
+        newPasswordConfirmation: Joi.string().valid(Joi.ref('newPassword'))
+      })
+      .with('oldPassword', 'newPassword', 'newPasswordConfirmation')
+  },
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
+    const id   = request.auth.credentials.id.toString();
+    const data = request.payload;
+
+    User.find({where: {id}}).then(function (user) {
+      if (user === null) {
+        return reply(Boom.badRequest('User not found. This is strange'));
+      }
+
+      if(!user.validPassword(data.oldPassword)) {
+        return reply(Boom.badRequest('Sorry, provided old password is incorrect'));
+      }
+      
+      return user.update({password: data.newPassword}).then(function (updated) {
+
+        let plain = updated.get({plain: true});
+        if (plain.password) {
+          plain.passwordUpdated = true;
+          delete plain.password;
+        } else {
+          plain.passwordUpdated = false;
+        }
+
+        delete plain.isAdmin;
+
+        return reply(plain);
+      });
+    }).catch((err) => {
+      return reply(err);
+    });
+  }
+};
+
 module.exports.update = {
   tags: ['api', 'users'],
   auth: {scope: [ 'admin' ]},
@@ -133,6 +245,34 @@ module.exports.update = {
   }
 };
 
+module.exports.get = {
+  tags: ['api', 'users'],
+  auth: {scope: [ 'admin' ]},
+  description: 'Get user',
+  notes: 'Read single user\'s data',
+  validate: {
+    params: {
+      id: Joi.string().guid()
+    }
+  },
+  handler: function (request, reply) {
+    const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
+    const id   = request.params.id;
+    const data = request.payload;
+
+    const attributes = ['id', 'name', 'email', 'isAdmin', 'isActive', 'scope', 'createdAt', 'updatedAt'];
+
+    User.find({where: {id}, attributes}).then(function (user) {
+      if (user === null) {
+        return reply(Boom.badRequest('User not found'));
+      }
+
+      return reply(user);
+      
+    }).catch((err) => reply(err));
+  }
+};
+
 module.exports.delete = {
   tags: ['api', 'users'],
   auth: {scope: [ 'admin' ]},
@@ -158,8 +298,7 @@ module.exports.delete = {
       }
 
       return user.update({isActive: false}).then(function (updated) {
-        // Destroy user's session in case he is currently logged in
-        request.yar.clear(id);
+        // TODO: Destroy user's session in case he is currently logged in. For that, session ID is needed and it's contained only in the token. So, it should be added to the user's model as well
         
         return reply(updated);
       });

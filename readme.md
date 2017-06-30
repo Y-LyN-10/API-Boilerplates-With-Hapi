@@ -48,18 +48,19 @@ Feature List
         + :white_medium_square: [ ] reCAPTCHA on user registration / change password pages
         + :white_medium_square: [x] List users with pagination, filters and sorting
         + :white_medium_square: [x] User login/registration with password (hashed & salted)
-        + :white_medium_square: [x] Update user's profile & password (needs improvements)
+        + :white_medium_square: [x] Update user's profile & password
         + :white_medium_square: [ ] Link google account with local and vice-versa with different emails
         + :white_medium_square: [ ] Create GitLab CI Flow for this branch
         + :white_medium_square: [ ] Forgot / Reset Password functionality API
         + :white_medium_square: [ ] Send emails forgot password / password changed
         + :white_medium_square: [x] Soft delete user
     - :white_medium_square: with [Hapi Models & MongoDB](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/tree/with-mongodb)
-    
-* :white_medium_square: Neo4j Graph Database
+
 
 **Legend**:
-First column of check-boxes if about that functionality being fully tested with lab.js.
-Second check-boxe is indicating if that functionality is implemented and manually tested.
+* First column of check-boxes if about that functionality being `fully tested with lab.js`.
+Second check-box is indicating if that functionality is implemented and `manually tested`.
 
-**Tip:** If you want to contribute and you're wondering where to start from, you can also check the "//TODO"-s in the code. Install [leasot](https://github.com/pgilad/leasot) cli tool and run `npm run todo` to list all tasks.
+
+**Tip**:
+* If you want to contribute and you're wondering where to start from, you can also check the "//TODO"-s in the code. Install [leasot](https://github.com/pgilad/leasot) cli tool and run `npm run todo` to list all tasks.
