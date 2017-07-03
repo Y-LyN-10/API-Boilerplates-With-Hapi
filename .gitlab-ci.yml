@@ -9,7 +9,7 @@ before_script:
   - npm install lab -g
 
 services:
-  - postgresql
+  - postgres
   - redis
 
 build:
