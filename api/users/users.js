@@ -37,7 +37,7 @@ module.exports.list = {
 
     User.count({where:criteria}).then(function (total) {
       User.findAll(options).then(function (items) {
-        reply({ page, offset, total, items, next, prev });
+        return reply({ page, offset, total, items, next, prev });
       });
     }).catch((err) => reply(err));
  }
@@ -62,17 +62,17 @@ module.exports.create = {
     data.email = data.email.toLowerCase();
     
     User.create(data).then(function (user) {
-
-      // FIXME: research about scopes in sequelize schemas
-      let plain = user.get({plain:true});
-
-      delete plain.password;
-      delete plain.isAdmin;
-      delete plain.isActive;
-
-      reply(plain);
-
-    }).catch((err) => reply(err));
+      let created = user.profile;
+      created.createdAt = user.get('createdAt');
+      
+      return reply(created).code(201);
+    }).catch((err) => {
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
+    });
   }
 };
 
@@ -93,7 +93,7 @@ module.exports.viewProfile = {
       }
 
       return reply(user);
-      
+
     }).catch((err) => reply(err));
   }
 };
@@ -135,7 +135,11 @@ module.exports.updateProfile = {
         return reply(plain);
       });
     }).catch((err) => {
-      return reply(err);
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
     });
   }
 };
@@ -183,7 +187,11 @@ module.exports.updatePassword = {
         return reply(plain);
       });
     }).catch((err) => {
-      return reply(err);
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
     });
   }
 };
@@ -240,7 +248,11 @@ module.exports.update = {
         return reply(plain);
       });
     }).catch((err) => {
-      return reply(err);
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
     });
   }
 };
@@ -303,7 +315,11 @@ module.exports.delete = {
         return reply(updated);
       });
     }).catch((err) => {
-      return reply(err);
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
     });
   }
 };

@@ -99,7 +99,7 @@ exports.register = function (server, pluginOptions, next) {
     config: {
       tags: ['api', 'auth'],
       description: 'Login',
-      auth: false,
+      auth: {mode: 'try'},
       notes: 'Autnenticate with email and password to request JWT access token',
       plugins: {
         'hapi-rate-limit': { pathLimit: 10 }
@@ -139,11 +139,11 @@ exports.register = function (server, pluginOptions, next) {
                 if (user === null) {
                   return reply(Boom.badRequest('User not found'));
                 }
-                
+
                 server.methods.authenticate(request, user, tokens => {
                   return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
                 });
-              });            
+              }).catch(err => console.log); // FIXME: reply is called twice when there is err => reply(err)
             });
             
           });

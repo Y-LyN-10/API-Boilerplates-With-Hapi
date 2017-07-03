@@ -30,8 +30,7 @@ describe('Server', () => {
   console.log('Testing with:\n', randomUser, '\n');
   
   let newUser = {
-    firstName: 'Hello',
-    lastName: 'Test',
+    name: 'Hello Test',
     email: 'teST@hapi-api.lab',
     password: 'testTEST1',
     passwordConfirmation: 'testTEST1'
@@ -40,9 +39,15 @@ describe('Server', () => {
   let createdUser = Object.assign({}, newUser);
 
   // Seed hapi_api_test database
-  exec("sequelize db:migrate --env=test", {encoding: 'utf8'});
-  exec('sequelize db:seed:undo:all --env=test', {encoding: 'utf8'});
-  exec('sequelize db:seed:all --env=test', {encoding: 'utf8'});
+  try {
+    exec("sequelize db:seed:undo:all --env=test", {encoding: 'utf8'});
+    exec("sequelize db:migrate:undo:all --env=test", {encoding: 'utf8'});
+    exec("sequelize db:migrate --env=test", {encoding: 'utf8'});
+    exec('sequelize db:seed:all --env=test', {encoding: 'utf8'});
+  } catch(err) {
+    console.log('Error seeding the database', err);
+    process.exit(1);
+  }
   
   let initialAccessToken;
   let accessToken;
@@ -392,14 +397,14 @@ describe('Server', () => {
         // server.inject lets you simulate an http request
         server.inject(options, function(response) {          
           expect(response.statusCode).to.equal(201);
-          expect(response.result._id).to.exist();
+          expect(response.result.id).to.exist();
           expect(response.result.firstName).to.equal(newUser.firstName);
           expect(response.result.lastName).to.equal(newUser.lastName);
           expect(response.result.email).to.equal(newUser.email.toLowerCase());
-          expect(response.result.timeCreated).to.exist();
+          expect(response.result.createdAt).to.exist();
           expect(response.result.password).to.not.exist();
           
-          createdUser._id = response.result._id;
+          createdUser.id = response.result.id;
           
           done();
         });
@@ -415,10 +420,11 @@ describe('Server', () => {
         
         // server.inject lets you simulate an http request
         server.inject(options, function(response) {
-          expect(response.statusCode).to.equal(409);
-          expect(response.result.statusCode).to.be.equal(409);
-          expect(response.result.error).to.be.equal("Conflict");
+          expect(response.statusCode).to.equal(400);
+          expect(response.result.statusCode).to.be.equal(400);
           expect(response.result.message).to.be.string;
+          expect(response.result.message).to.be.equal('Validation error');
+          expect(response.result.errors[0].message).to.be.equal('email must be unique');
           
           done();
         });
@@ -487,7 +493,7 @@ describe('Server', () => {
       lab.test("should be able to delete another user's profile", function(done) {
         let options = {
           method: 'DELETE',
-          url: '/api/users/' + createdUser._id,
+          url: '/api/users/' + createdUser.id,
           headers: {
             Authorization: 'Bearer ' + adminAccessToken
           }
@@ -571,8 +577,7 @@ describe('Server', () => {
 
   });
 
-  after((done) => {
-    exec("sequelize db:seed:undo:all --env=test", {encoding: 'utf8'});
+  after((done) => {    
     done();
   });
 });

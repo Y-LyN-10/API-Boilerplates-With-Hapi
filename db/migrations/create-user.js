@@ -10,13 +10,42 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         unique: true
       },
+      google_id: {
+        allowNull: true,
+        primaryKey: false,
+        type: Sequelize.STRING,
+        unique:true
+      },
       name: {
-        allowNull: false,
+        type: Sequelize.STRING
+      },
+      firstName: {
+        allowNull: true,
         type: Sequelize.STRING,
         validate: {
           notEmpty: true,
           len: [2,255]
         }
+      },
+      lastName: {
+        allowNull: true,
+        type: Sequelize.STRING,
+        validate: {
+          notEmpty: true,
+          len: [2,255]
+        }
+      },
+      image: {
+        allowNull: true,
+        type: Sequelize.STRING,
+        validate: {
+          isUrl: { msg: 'Invalid URL' }
+        }
+      },
+      language: {
+        allowNull: true,
+        type: Sequelize.STRING,
+        defaultValue: 'en'
       },
       email: {
         allowNull: false,
@@ -48,7 +77,7 @@ module.exports = {
       },
       scope: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM('user', 'admin'),
         defaultValue: 'user'
       },
       createdAt: {
@@ -67,6 +96,3 @@ module.exports = {
     return queryInterface.dropTable('Users');
   }
 };
-
-
-
