@@ -50,7 +50,7 @@ Feature List
         + :white_check_mark: [x] User login/registration with password (hashed & salted)
         + :white_medium_square: [x] Update user's profile & password
         + :white_medium_square: [ ] Link google account with local and vice-versa with different emails
-        + :white_medium_square: [ ] Create GitLab CI Flow for this branch
+        + :white_medium_square: [x] Create GitLab CI Flow for this branch
         + :white_medium_square: [ ] Forgot / Reset Password functionality API
         + :white_medium_square: [ ] Send emails forgot password / password changed
         + :white_check_mark: [x] Soft delete user

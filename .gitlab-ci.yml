@@ -6,7 +6,7 @@ cache:
 
 before_script:
   - npm install
-  - npm install sequelize -g
+  - npm install sequelize-cli -g
   - npm install lab -g
 
 services:
