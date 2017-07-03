@@ -42,18 +42,18 @@ Feature List
 **Branching:**
 * Users Model & CRUD 
     - :white_medium_square: with Sequelize & Relational Database (*current* git branch)
-        + :white_medium_square: [x] [Setup](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/blob/with-sequelize/postgresql-secure-setup.md) configurations, user model, seeder and migrations
-        + :white_medium_square: [x] Login/Register with Google Account
+        + :white_check_mark: [x] [Setup](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/blob/with-sequelize/postgresql-secure-setup.md) configurations, user model, seeder and migrations
+        + :white_check_mark: [x] Login/Register with Google Account
         + :white_medium_square: [ ] Registration validation by email
         + :white_medium_square: [ ] reCAPTCHA on user registration / change password pages
         + :white_medium_square: [x] List users with pagination, filters and sorting
-        + :white_medium_square: [x] User login/registration with password (hashed & salted)
+        + :white_check_mark: [x] User login/registration with password (hashed & salted)
         + :white_medium_square: [x] Update user's profile & password
         + :white_medium_square: [ ] Link google account with local and vice-versa with different emails
         + :white_medium_square: [ ] Create GitLab CI Flow for this branch
         + :white_medium_square: [ ] Forgot / Reset Password functionality API
         + :white_medium_square: [ ] Send emails forgot password / password changed
-        + :white_medium_square: [x] Soft delete user
+        + :white_check_mark: [x] Soft delete user
     - :white_medium_square: with [Hapi Models & MongoDB](http://gitlab.mentormate.bg/yulia.tenincheva/hapi-api-boilerplate/tree/with-mongodb)
 
 
