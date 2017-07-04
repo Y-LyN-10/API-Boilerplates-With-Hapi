@@ -40,8 +40,8 @@ describe('Server', () => {
 
   // Seed hapi_api_test database
   try {
-    exec("sequelize db:seed:undo:all --env=test", {encoding: 'utf8'});
-    exec("sequelize db:migrate:undo:all --env=test", {encoding: 'utf8'});
+    // exec("sequelize db:seed:undo:all --env=test", {encoding: 'utf8'});
+    // exec("sequelize db:migrate:undo:all --env=test", {encoding: 'utf8'});
     exec("sequelize db:migrate --env=test", {encoding: 'utf8'});
     exec('sequelize db:seed:all --env=test', {encoding: 'utf8'});
   } catch(err) {
