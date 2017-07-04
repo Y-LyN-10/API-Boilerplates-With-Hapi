@@ -66,7 +66,7 @@ const manifest = {
           password: envKey('db').password,
           dialect:  envKey('db').dialect,
           logging:  () => envKey('db').logging, // should be a function or false
-          host: envKey('db').host || envKey('host'),
+          host: envKey('postgres_host') || envKey('db').host || envKey('host'),
           seederStorage: 'sequelize'
         })
       }

@@ -30,6 +30,12 @@ postgres=# CREATE DATABASE hapi_api_production;
 CREATE DATABASE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE hapi_api_production to happai;
 GRANT
+
+postgres=# CREATE USER runner WITH PASSWORD 'gitlab-ci';
+CREATE ROLE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE hapi_api_test to runner;
+GRANT
+
 postgres=# \q
 ```
 
