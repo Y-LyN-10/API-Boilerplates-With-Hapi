@@ -5,7 +5,8 @@ cache:
     - node_modules/
 
 before_script:
-  - psql -f init.sql	
+  - sudo apt-get install -y postgresql postgresql-client libpq-dev
+  - psql -f init.sql
   - npm install
   - npm install sequelize-cli -g
   - npm install lab -g
