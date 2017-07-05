@@ -5,6 +5,7 @@ cache:
     - node_modules/
 
 before_script:
+  - psql -f init.sql	
   - npm install
   - npm install sequelize-cli -g
   - npm install lab -g
