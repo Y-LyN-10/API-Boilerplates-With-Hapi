@@ -7,7 +7,6 @@ cache:
 before_script:
   - env | grep PG
   - find / -name "psql"
-  - psql -f init.sql
   - npm install
   - npm install sequelize-cli -g
   - npm install lab -g
