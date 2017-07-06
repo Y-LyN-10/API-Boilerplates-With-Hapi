@@ -4,8 +4,7 @@ cache:
   paths:
     - node_modules/
 
-before_script:
-  - psql -f init.sql	
+before_script:	
   - npm install
   - npm install sequelize-cli -g
   - npm install lab -g
@@ -17,4 +16,5 @@ services:
 build:
   stage: test
   script:
+    - node init-postgres.js
     - lab -v
