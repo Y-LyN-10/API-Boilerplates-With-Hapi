@@ -46,17 +46,30 @@ const connect = function (callback) {
 fs.readFile('init.sql', 'utf8', (err, sql) => {
   if (err) throw err;
 
-  let queries = sql.split('\n');
-  
-  queries.forEach(q => {
+  let allQueries = sql.split('\n');
+
+  function queryDatabase(queries) {
+    let q = queries.shift();
+    
     //to run a query we just pass it to the pool
     //after we're done nothing has to be taken care of
     //we don't have to return any client to the pool or close a connection
     pool.query(q, function(err, res) {
-      if(err) return console.error('error running query', err);
-      console.log('number:', res.rowCount);
+      if(err) {
+        return console.error('error running query', err);
+        process.exit(1);
+      }
+
+      if(queries.length > 0) {
+        queryDatabase(queries);
+      } else {
+        console.log('Done');
+        return;
+      }
     });
-  });
+  }
+
+  queryDatabase(allQueries);
   
 });
 
