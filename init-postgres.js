@@ -46,16 +46,18 @@ const connect = function (callback) {
 fs.readFile('init.sql', 'utf8', (err, sql) => {
   if (err) throw err;
 
-  //to run a query we just pass it to the pool
-  //after we're done nothing has to be taken care of
-  //we don't have to return any client to the pool or close a connection
-  pool.query(sql, function(err, res) {
-    if(err) {
-      return console.error('error running query', err);
-    }
-
-    console.log('number:', res.rows[0].number);
+  let queries = sql.split('\n');
+  
+  queries.forEach(q => {
+    //to run a query we just pass it to the pool
+    //after we're done nothing has to be taken care of
+    //we don't have to return any client to the pool or close a connection
+    pool.query(q, function(err, res) {
+      if(err) return console.error('error running query', err);
+      console.log('number:', res.rowCount);
+    });
   });
+  
 });
 
 console.log('Initialize PostgreSQL Database & Users');
