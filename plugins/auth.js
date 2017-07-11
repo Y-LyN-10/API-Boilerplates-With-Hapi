@@ -9,8 +9,6 @@ exports.register = function (server, pluginOptions, next) {
   const redisInstance = server.plugins.redis.client;
 
   const generateTokens = function(user, done) {
-    console.log('USER', user);
-    
     let session = {
       email : user.email,
       name  : user.name,
