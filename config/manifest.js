@@ -58,7 +58,7 @@ const manifest = {
         name: 'hapidb',
         models: [ './db/models/*.js' ],
         // sync: true, // will drop the Users table and re-create it.
-        // forceSync: true,
+        forceSync: true,
         debug: true,
         sequelize: new Sequelize({
           database: envKey('db').database,

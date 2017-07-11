@@ -116,7 +116,8 @@ users.map(u => {
   u.updatedAt = new Date();
   u.isAdmin = u.scope;
   u.scope = u.scope ? 'admin' : 'user';
-  u.name += ' Smith';
+  u.firstName = u.name;
+  u.lastName = 'Smith';
   
   if(!passwordRegex.test(u.password)) u.password += 'aA1';
 

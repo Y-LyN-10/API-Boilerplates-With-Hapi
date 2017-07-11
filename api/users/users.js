@@ -19,7 +19,7 @@ module.exports.list = {
   },
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
- 
+    
     // Destruct the query params to variables
     const q = request.query;
     const [page, limit, order] = [q.page, q.pageSize, q.order];
@@ -31,15 +31,23 @@ module.exports.list = {
 
     const criteria = { isActive: true, isAdmin: false };
     const options = {
-      where: criteria, limit, offset, order,
+      where: criteria, limit, offset, order: [order],
       attributes: ['id', 'name', 'email', 'createdAt', 'updatedAt']
     };
 
-    User.count({where:criteria}).then(function (total) {
-      User.findAll(options).then(function (items) {
-        return reply({ page, offset, total, items, next, prev });
-      });
-    }).catch((err) => reply(err));
+    User.findAndCountAll(options).then(function (result) {
+      let total = result.count;
+      let items = result.rows;
+      
+      return reply({ page, offset, total, items, next, prev });
+      
+    }).catch((err) => {
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
+    });
  }
 };
 
@@ -84,7 +92,7 @@ module.exports.viewProfile = {
   handler: function (request, reply) {
     const User = request.server.plugins['hapi-sequelize'].hapidb.models.User;
     const id   = request.auth.credentials.id.toString();
-
+    
     const attributes = ['id', 'name', 'email', 'createdAt', 'updatedAt'];
 
     User.find({where: {id}, attributes}).then(function (user) {
@@ -94,7 +102,13 @@ module.exports.viewProfile = {
 
       return reply(user);
 
-    }).catch((err) => reply(err));
+    }).catch((err) => {
+      return reply({
+        statusCode: 400,
+        message: err.message,
+        errors: err.errors
+      }).code(400);
+    });
   }
 };
 

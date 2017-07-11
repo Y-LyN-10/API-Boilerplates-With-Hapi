@@ -17,7 +17,8 @@ module.exports = {
         unique:true
       },
       name: {
-        type: Sequelize.STRING
+        allowNull: true,
+        type: Sequelize.STRING,
       },
       firstName: {
         allowNull: true,
@@ -89,6 +90,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
+      }, deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       }
     });
   },

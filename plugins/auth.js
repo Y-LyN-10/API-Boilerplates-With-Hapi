@@ -9,6 +9,8 @@ exports.register = function (server, pluginOptions, next) {
   const redisInstance = server.plugins.redis.client;
 
   const generateTokens = function(user, done) {
+    console.log('USER', user);
+    
     let session = {
       email : user.email,
       name  : user.name,
@@ -148,14 +150,22 @@ exports.register = function (server, pluginOptions, next) {
             
           });
         } else {
-          User.findOne({where: {email: body.email.toLowerCase(), isActive: true}}).then(user => {
-            if (!user || !user.validPassword(body.password)) {
+          User.findOne({where: {email: body.email.toLowerCase(), isActive: true}}).then(userInstance => {
+            if (!userInstance || !userInstance.validPassword(body.password)) {
               return reply(Boom.badRequest('Sorry, wrong email or password'));
             }
 
+            let user = userInstance.get({plain:true});
+            
             server.methods.authenticate(request, user, tokens => {
               return reply(tokens).header('Authorization', 'Bearer ' + tokens.accessToken);
             });
+          }).catch((err) => {
+            return reply({
+              statusCode: 400,
+              message: err.message,
+              errors: err.errors
+            }).code(400);
           });
         }
       }

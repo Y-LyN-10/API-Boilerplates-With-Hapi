@@ -10,17 +10,7 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: DataTypes.UUIDV4
     },
     google_id: DataTypes.STRING,
-    name: {
-      type: new DataTypes.VIRTUAL(DataTypes.STRING, ['firstName', 'lastName']),
-      get: function() {
-        return this.get('firstName') + ' ' + this.get('lastName');
-      },
-      set: function(fullName) {
-        let names = fullName.split(' ');
-        this.setDataValue('firstName', names[0]);
-        this.setDataValue('lastName', names[1]);
-      }
-    },
+    name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     firstName: DataTypes.STRING,
@@ -41,9 +31,6 @@ module.exports = function (sequelize, DataTypes) {
     }
   }, {
     getterMethods: {
-      name: function() {
-        return this.firstName + ' ' + this.lastName;
-      },
       profile: function() {
         return {
           id: this.id,
@@ -61,31 +48,23 @@ module.exports = function (sequelize, DataTypes) {
     setterMethods: {
       name: function(fullname) {
         let names = fullname.split(' ');
-        this.firstName = split[0];
-        this.lastName = split[1];
+        this.setDataValue('name', fullname);
+        this.setDataValue('firstName', names[0]);
+        this.setDataValue('lastName', names[1]);
       }
     },
-    
-    // classMethods: {
+    classMethods: {
       // associate: function (models) {
         // associations can be defined here
         // User.hasOne(models.Session);
       // }
-    // },
+    },
     
     indexes: [ {unique: true, fields: [ 'id', 'google_id', 'email' ]} ],
+
+    timestamps: true,
+    paranoid: true,
     
-    // timestamps: true,
-    // paranoid: false,
-    
-    instanceMethods: {
-      generateHash: function (password) {
-        return Bcrypt.hashSync(password, Bcrypt.genSaltSync(8), null);
-      },
-      validPassword: function (password) {
-        return Bcrypt.compareSync(password, this.password);
-      }
-    },
     hooks: {
       beforeCreate: function (user, options) {
         if(user.password) {
@@ -103,6 +82,15 @@ module.exports = function (sequelize, DataTypes) {
       }
     }
   });
+
+  // instance level methods in latest sequelize version
+  User.prototype.generateHash = function (password) {
+    return Bcrypt.hashSync(password, Bcrypt.genSaltSync(8), null);
+  };
+  
+  User.prototype.validPassword = function (password) {
+    return Bcrypt.compareSync(password, this.password);
+  };
 
   return User;
 };
