@@ -14,7 +14,17 @@ module.exports.list = {
     query: {
       page: Joi.number().integer().min(1).max(100).default(1),
       pageSize: Joi.number().integer().min(1).max(100).default(30),
-      order: Joi.string().valid('name', 'email', '"createdAt" desc', '"createdAt"').default('name')
+      order: Joi.string().valid('name', 'email', '"createdAt" desc', '"createdAt"').default('name'),
+      filter: Joi.array().items(Joi.object().keys({
+        by: Joi.string().valid(['name', 'createdAt', 'updatedAt', 'isActive', 'isAdmin']),
+        equals: Joi.string(),
+        from: Joi.date().max('now'),
+        to: Joi.date().max('now')
+      }).without('equals', ['from', 'to'])
+        .with('equals', 'by')
+        .with('from', 'by')
+        .with('to', 'by')
+      )
     }
   },
   handler: function (request, reply) {
@@ -22,17 +32,33 @@ module.exports.list = {
     
     // Destruct the query params to variables
     const q = request.query;
-    const [page, limit, order] = [q.page, q.pageSize, q.order];
+    const [page, limit, order, filter] = [q.page, q.pageSize, q.order, q.filter];
     const offset = (limit * (page - 1));
-
+    
     // make it easier for the FE query building
     const next = `/api/users?page=${page + 1}&limit=${limit}`;
     const prev = `/api/users?page=${page - 1}&limit=${limit}`;
 
-    const criteria = { isActive: true, isAdmin: false };
+    const where = {};
+    
+    for(let i = 0; i < filter.length; i+=1) {
+      let criteria = filter[i];
+      let key = criteria.by;
+      
+      where[key] = {};
+      
+      if(criteria.equals) where[key] = criteria.equals;
+      if(criteria.from) where[key].gte = criteria.from;
+      if(criteria.to) where[key].lte = criteria.to;
+    }
+
+    console.log(filter);
+    
+    console.log(where);
+    
     const options = {
-      where: criteria, limit, offset, order: [order],
-      attributes: ['id', 'name', 'email', 'createdAt', 'updatedAt']
+      where, limit, offset, order: [order],
+      attributes: ['id', 'name', 'email', 'createdAt', 'updatedAt', 'isAdmin', 'isActive']
     };
 
     User.findAndCountAll(options).then(function (result) {
