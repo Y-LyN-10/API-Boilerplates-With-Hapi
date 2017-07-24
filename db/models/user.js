@@ -30,6 +30,11 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'user'
     }
   }, {
+    defaultScope: {
+      where: {
+        isActive: true
+      }
+    },
     getterMethods: {
       profile: function() {
         return {

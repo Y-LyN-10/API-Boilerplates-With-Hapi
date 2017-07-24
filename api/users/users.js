@@ -17,13 +17,17 @@ module.exports.list = {
       order: Joi.string().valid('name', 'email', '"createdAt" desc', '"createdAt"').default('name'),
       filter: Joi.array().items(Joi.object().keys({
         by: Joi.string().valid(['name', 'createdAt', 'updatedAt', 'isActive', 'isAdmin']),
-        equals: Joi.string(),
+        equals: Joi
+          .when('by', {is: 'createdAt', then: Joi.date().max('now'), otherwise: Joi
+          .when('by', {is: 'updatedAt', then: Joi.date().max('now'), otherwise: Joi.string().required()})}),
         from: Joi.date().max('now'),
         to: Joi.date().max('now')
-      }).without('equals', ['from', 'to'])
+      })
+        .without('equals', ['from', 'to'])
         .with('equals', 'by')
         .with('from', 'by')
         .with('to', 'by')
+        .xor('equals', 'from', 'to')                   
       )
     }
   },
@@ -32,7 +36,7 @@ module.exports.list = {
     
     // Destruct the query params to variables
     const q = request.query;
-    const [page, limit, order, filter] = [q.page, q.pageSize, q.order, q.filter];
+    const [page, limit, order, filter] = [q.page, q.pageSize, q.order, q.filter || []];
     const offset = (limit * (page - 1));
     
     // make it easier for the FE query building
@@ -44,18 +48,14 @@ module.exports.list = {
     for(let i = 0; i < filter.length; i+=1) {
       let criteria = filter[i];
       let key = criteria.by;
-      
+
       where[key] = {};
-      
+
       if(criteria.equals) where[key] = criteria.equals;
       if(criteria.from) where[key].gte = criteria.from;
       if(criteria.to) where[key].lte = criteria.to;
     }
 
-    console.log(filter);
-    
-    console.log(where);
-    
     const options = {
       where, limit, offset, order: [order],
       attributes: ['id', 'name', 'email', 'createdAt', 'updatedAt', 'isAdmin', 'isActive']

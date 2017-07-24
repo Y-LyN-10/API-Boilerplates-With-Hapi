@@ -65,7 +65,7 @@ const manifest = {
           username: envKey('db').username,
           password: envKey('db').password,
           dialect:  envKey('db').dialect,
-          logging:  () => envKey('db').logging, // should be a function or false
+          logging:  console.log, // should be a function or false. Enable logging of exact SQL queries that have been executed
           host: envKey('db').host || envKey('host'),
           seederStorage: 'sequelize'
         })
