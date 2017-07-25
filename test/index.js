@@ -1,5 +1,7 @@
 'use strict';
 
+require('dotenv').config(__dirname + '/../config/.env');
+
 const exec = require('child_process').execSync;
 
 const Code = require('code');

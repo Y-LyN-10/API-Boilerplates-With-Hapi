@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "eslint . --fix && lab -c -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json",
-    "todo": "leasot --tags FIXME ./**/*.js ./**/**/*.js --ignore \"./node_modules/**/*.js\""    
+    "todo": "leasot --tags FIXME ./**/*.js ./**/**/*.js --ignore \"./node_modules/**/*.js\""
   },
   "keywords": [
     "Hapi",
@@ -31,6 +31,7 @@
     "bcrypt": "^1.0.2",
     "catbox-memory": "^2.0.4",
     "catbox-redis": "^3.0.1",
+    "dotenv": "^4.0.0",
     "glue": "^4.1.0",
     "good": "^7.1.0",
     "good-console": "^6.2.0",
@@ -43,9 +44,9 @@
     "joi": "^10.2.0",
     "jsonwebtoken": "^7.3.0",
     "labbable": "^2.1.0",
-    "pg": "^6.4.0",
+    "pg": "^6.4.1",
     "pg-native": "^1.10.1",
     "redis": "^2.7.1",
-    "sequelize": "^4.3.0"
+    "sequelize": "^4.4.2"
   }
 }
