@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "eslint . --fix && lab -c -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json"
+    "test": "eslint . --fix && lab -c -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json",
+    "vars": "node config/set_env_vars.js"
   },
   "keywords": [
     "Hapi",
@@ -25,6 +26,8 @@
   },
   "dependencies": {
     "catbox-memory": "^2.0.4",
+    "catbox-redis": "^3.0.2",
+    "dotenv": "^4.0.0",
     "glue": "^4.1.0",
     "good": "^7.1.0",
     "good-console": "^6.2.0",
