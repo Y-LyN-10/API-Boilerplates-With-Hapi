@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "eslint . --fix && lab -c -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json",
+    "test": "lab -c -v -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json",
     "seed": "node -e \"require('./db/seeders/users').Seed();\"",
     "reset-db": "node -e \"require('./db/seeders/users').Reset();\"",
     "todo": "leasot --tags FIXME ./**/*.js ./**/**/*.js --ignore \"./node_modules/**/*.js\""

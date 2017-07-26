@@ -130,9 +130,9 @@ const manifest = {
     plugin: {
       register: './plugins/nodemailer',
       options: {
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true, // secure:true for port 465, secure:false for port 587
+        host: 'smtp.mail.com',
+        port: 465, // alternative - 587 or 25
+        secure: true, // use SSL (true for port 465, false for port 587)
         auth: {
           user: envKey('email_address'),
           pass: envKey('email_password')

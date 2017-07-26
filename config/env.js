@@ -14,8 +14,8 @@ const envKey = key => {
     redis_host: process.env.REDIS_HOST,
     google_client_id: process.env.GOOGLE_CLIENT_ID,
     google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    email_address: process.env.GMAIL_ADDRESS,
-    email_password: process.env.GMAIL_PASSWORD
+    email_address: process.env.EMAIL_ADDRESS,
+    email_password: process.env.EMAIL_PASSWORD
   };
 
   if (env === 'test') {
