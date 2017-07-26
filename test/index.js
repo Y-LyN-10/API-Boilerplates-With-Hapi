@@ -1,5 +1,7 @@
 'use strict';
 
+require('dotenv').config({path: __dirname + '/../config/.env'});
+
 const Code = require('code');
 const Boom = require('boom');
 const Lab = require('lab');

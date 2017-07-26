@@ -1,3 +1,7 @@
+'use strict';
+
+require('dotenv').config({path: __dirname + '/.env'});
+
 const envKey = key => {
   const env = process.env.NODE_ENV || 'development';
 
