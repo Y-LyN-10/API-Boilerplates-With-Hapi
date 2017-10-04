@@ -25,3 +25,6 @@ forever.log
 public/photos/*
 lcov.info
 .gmail
+/config/.env
+.env
+.local.env
