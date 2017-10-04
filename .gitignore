@@ -24,3 +24,6 @@ forever.log
 .editorconfig
 public/photos/*
 lcov.info
+/config/.env
+.env
+.local.env
