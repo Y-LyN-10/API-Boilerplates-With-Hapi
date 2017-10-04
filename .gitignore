@@ -27,3 +27,4 @@ lcov.info
 /config/.env
 .env
 .local.env
+/config/db.json
