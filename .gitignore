@@ -28,3 +28,6 @@ lcov.info
 .env
 .local.env
 /config/db.json
+/config/.keys/*
+*.cert
+*.pem
