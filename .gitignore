@@ -28,3 +28,6 @@ lcov.info
 /config/.env
 .env
 .local.env
+config/.keys/*
+*.cert
+*.pem
