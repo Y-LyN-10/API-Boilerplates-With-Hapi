@@ -45,7 +45,7 @@ module.exports.update = {
   notes: 'Change user\'s password',
   validate: {
     params: {
-      id: Joi.string().guid()
+      id: Joi.number().integer()
     },
     payload: Joi.object()
       .keys({
@@ -65,7 +65,7 @@ module.exports.delete = {
   notes: 'Delete user by ID (soft delete)',
   validate: {
     params: {
-      id: Joi.string().guid()
+      id: Joi.number().integer()
     }
   },
   handler: function (request, reply) {

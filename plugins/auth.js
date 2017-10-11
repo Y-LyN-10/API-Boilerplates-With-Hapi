@@ -5,12 +5,15 @@ const Boom = require('boom');
 const Joi  = require('joi');
 const uuid = require('uuid/v4');
 
-exports.register = function (server, pluginOptions, next) {  
+exports.register = function (server, pluginOptions, next) {
+  const redisInstance = server.plugins.redis.client;
+  
   const generateTokens = function(user, done) {
     let session = {
       email : user.email,
       name  : user.name,
       id    : user.id,
+      sid   : user.sid,
 
       // Scope determines user's access rules for auth
       scope : [ user.scope || user.isAdmin ? 'admin' : 'user' ]
@@ -28,21 +31,25 @@ exports.register = function (server, pluginOptions, next) {
   }
   
   const authenticate = function(request, account, done) {
-    const sid = uuid();
+    const sid = uuid().toString();
     account.sid = sid;
-    request.yar.set(account.id.toString(), {account});
+
+    const ttl = 60 * 45; // 45 minutes in seconds
+
+    redisInstance.set(sid, JSON.stringify(account), 'EX', ttl, (err) => {
+      if (err) server.log(['err', 'redis'], err); return;
+    });
     
     server.methods.generateTokens(account, tokens => {
       done(tokens);
     });
   }
   
-  const validateToken = function (decoded, request, callback) {
-    if (request.yar.get(decoded.id)) {
+  const validateToken = function (decoded, request, callback) {    
+    redisInstance.get(decoded.sid.toString(), (err, reply) => {
+      if (err || !reply) callback(null, false);
       callback(null, true);
-    } else {
-      callback(null, false);
-    }
+    });
   };
 
   const verifyToken = function (decoded, request, callback) {
@@ -108,8 +115,8 @@ exports.register = function (server, pluginOptions, next) {
       validate: {
         payload: Joi.object()
           .keys({
-            email: Joi.string().email(),
-            password: Joi.string().min(8).max(200),
+            email: Joi.string().email().example('john@company.com'),
+            password: Joi.string().min(8).max(200).example('supersafe'),
             refreshToken: Joi.string().optional().allow('')
           })
           .with('email', 'password')
@@ -117,25 +124,20 @@ exports.register = function (server, pluginOptions, next) {
           .or('refreshToken', ['email', 'password'])
       },
       handler: function (request, reply) {
-
-        // TODO: Replace fake users with real model & database
-
-        const User = require('../db/models/user.model');
-
-        // Validations
+        const User = require('../db/models/user');
 
         if (request.auth.isAuthenticated) {
           return reply('Already logged in !');
         }
 
         if (!request.payload || !request.payload.email || !request.payload.password) {
-          return reply(Boom.unauthorized('Email or password invalid...'));
+          return reply(Boom.unauthorized('Email or password invalid'));
         }
 
         let user = User.findByEmail(request.payload.email);
 
         if (request.payload.password !== user.password) {
-          return reply(Boom.unauthorized('Email or Password invalid...'));
+          return reply(Boom.unauthorized('Email or Password invalid'));
         }
 
         server.methods.authenticate(request, user, tokens => {
@@ -153,8 +155,8 @@ exports.register = function (server, pluginOptions, next) {
       description: 'Logout',
       notes: 'Log out from the server to force token invalidation and revoke access',
       handler: function (request, reply) {
-        request.yar.clear(request.auth.credentials.id);
-        return reply('User successfully logged out');
+        redisInstance.DEL(request.auth.credentials.sid);
+        reply.redirect(request.query.next);
       }
     }
   });

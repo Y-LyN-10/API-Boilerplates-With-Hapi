@@ -8,13 +8,19 @@ const manifest = {
     cache: {
       engine: require('catbox-redis'),
       name: 'session',
-      host: '127.0.0.1',
-      port: 6379
+      host: envKey('host'),
+      port: envKey('redis_port')
     }
   },
   connections: [{
     host: envKey('host'),
-    port: envKey('port') || 80,
+    port: envKey('port'),
+    // uncomment for HTTPS
+    // tls: {
+    //   key: fs.readFileSync('config/.keys/key.pem'),
+    //   cert: fs.readFileSync('config/.keys/cert.pem')
+    //   passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+    // },
     routes: {
       cors: {
         origin: [ '*' ],
@@ -28,26 +34,6 @@ const manifest = {
     },
     router: {stripTrailingSlash: true},
     labels: [ 'api' ]
-  }, {
-    host: envKey('host'),
-    port: 443,
-    tls: {
-      key: fs.readFileSync('config/.keys/key.pem'),
-      cert: fs.readFileSync('config/.keys/cert.pem')
-      // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
-    },
-    routes: {
-      cors: {
-        origin: [ '*' ],
-        additionalExposedHeaders: [
-          'X-RateLimit-Limit',
-          'X-RateLimit-Remaining',
-          'X-RateLimit-Reset'
-        ]
-      },
-      security: true
-    },
-    router: {stripTrailingSlash: true}
   }],
   registrations: [{
     plugin: {
@@ -55,20 +41,8 @@ const manifest = {
       options: {
         partition: 'cache',
         host: '127.0.0.1', // default
-        port: 6379,      // default
+        port: 6379,        // default
         password: ''
-      }
-    }
-  }, {
-    plugin: {
-      register: 'yar',
-      options: {
-        maxCookieSize: 0, // force server-side storage
-        cache: { cache: 'session' },
-        cookieOptions: {
-          password: envKey('jar_secret'),  // cookie password
-          isSecure: false               // allow non HTTPS
-        }
       }
     }
   }, {
@@ -81,7 +55,7 @@ const manifest = {
         },
         pathLimit: false,
         pathCache: {
-          expiresIn: 1000 * 60 // 1 min
+          expiresIn: 1000 * 60 // 1 minute
         }
       }
     }
@@ -107,10 +81,12 @@ const manifest = {
           notes: 'Handled by hapi-auth-google plugin',
           tags: ['api', 'auth', 'plugin']
         },
-        handler: require('.././plugins/google-oauth'),
-        scope: ['https://www.googleapis.com/auth/plus.profile.emails.read',
-                'https://www.googleapis.com/auth/plus.login'],
-        BASE_URL:'http://' + envKey('host') + ':80'
+        handler: require('./../plugins/google-oauth'),
+        scope: [
+          'https://www.googleapis.com/auth/plus.profile.emails.read',
+          'https://www.googleapis.com/auth/plus.login'
+        ],
+        BASE_URL:'http://' + envKey('host') + ':' + envKey('port')
       }
     }
   }, {
@@ -131,7 +107,7 @@ const manifest = {
   }]
 };
 
-// hapi-auth-google can be registered only once, so if we have SSL connection, it's better to used it
+// hapi-auth-google can be registered only once, so if we have SSL connection, it's better to use it only
 const sslConn = manifest.connections.find((conn) => conn.tls);
 if(sslConn){
   manifest.registrations.map((r) => {
@@ -143,20 +119,21 @@ if(sslConn){
 
 // App Status Monitoring. Works with a signle connection only.
 // Run 'npm install hapijs-status-monitor --save' before using
-if(manifest.connections.length === 1) {
-  manifest.registrations.push({
-    plugin: {
-      register: 'hapijs-status-monitor',
-      options: {
-        title: 'Example API Monitor',
-        connectionLabel: 'api'
-      }
-    }
-  });
-}
+// if(manifest.connections.length === 1) {
+//   manifest.registrations.push({
+//     plugin: {
+//       register: 'hapijs-status-monitor',
+//       options: {
+//         title: 'Example API Monitor',
+//         connectionLabel: 'api'
+//       }
+//     }
+//   });
+// }
   
 if (process.env.NODE_ENV !== 'production') {
-  // Display the routes table on startup
+
+  // blipp displays the route table on startup
   manifest.registrations.push({
     'plugin': {
       'register': 'blipp',

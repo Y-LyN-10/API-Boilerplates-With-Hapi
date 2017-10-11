@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "eslint . --fix && lab -c -r console -o stdout -r html -o test/coverage.html -r lcov -o lcov.info -r json -o test/data.json",
-    "vars": "node config/set_env_vars.js"
+    "todo": "leasot --tags FIXME ./**/*.js ./**/**/*.js --ignore \"./node_modules/**/*.js\" || true"
   },
   "keywords": [
     "Hapi",
@@ -25,7 +25,6 @@
     "vision": "^4.1.1"
   },
   "dependencies": {
-    "catbox-memory": "^2.0.4",
     "catbox-redis": "^3.0.2",
     "dotenv": "^4.0.0",
     "glue": "^4.1.0",
@@ -37,7 +36,6 @@
     "hapi-rate-limit": "^1.3.1",
     "joi": "^10.2.0",
     "jsonwebtoken": "^7.3.0",
-    "labbable": "^2.1.0",
-    "yar": "^8.1.2"
+    "labbable": "^2.1.0"
   }
 }
