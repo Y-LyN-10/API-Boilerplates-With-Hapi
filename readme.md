@@ -15,3 +15,4 @@ Feature & TODO List:
 - :white_check_mark: Send emails forgot password / password changed
 - :white_medium_square: Link google account to a local one (with different email addresses)
 - :white_check_mark: Delete user
+- :white_medium_square: Test ...everything.
