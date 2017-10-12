@@ -31,7 +31,9 @@ $ git clone <url> --branch <branch> --single-branch [<folder>]
 
 My plan is to *merge* all these variants into one by creating a new db independent service layer.
 
-**Base features:** (on *master* branch)
+## Base features
+(on *master* branch)
+
 * Composable plugins with Glue
 * Good API Logging & Status Monitoring
 * Environment Configuration
@@ -49,4 +51,5 @@ My plan is to *merge* all these variants into one by creating a new db independe
 * Swagger Documentation
 
 
+###
 **Tip:** If you want to contribute and you're wondering where to start from, you can also check the "//TODO"-s in the code. Install [leasot](https://github.com/pgilad/leasot) cli tool and run `npm run todo` to list all tasks and ideas.
