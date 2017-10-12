@@ -1,6 +1,3 @@
-Quick start API with Hapi
-===
-
 Feature & TODO List:
 ===
 
@@ -17,3 +14,7 @@ Feature & TODO List:
 - :white_medium_square: Send emails forgot password / password changed
 - :white_check_mark: Soft delete user
 - :white_medium_square: Test ...everything.
+Quick start API with Hapi
+2
+===
+3
