@@ -15,14 +15,11 @@ The goal is to create a production ready boilerplate(s) in Hapi.js (v16) coverin
 
 [![npm version](https://badge.fury.io/js/npm.svg)](https://badge.fury.io/js/npm)
 
-Feature List
-===
-
-## General idea and todo-list:
+## Boilerplates
 
 As a base I used the opionated [hapi-api](https://github.com/rjmreis/hapi-api) boilerplate.
 
-For now, there are three versions of this boilerplate: [with MongoDB](https://github.com/Y-LyN-10/API-Boilerplates-With-Hapi/tree/master/mongodb-version) & [with Sequelize](https://github.com/Y-LyN-10/API-Boilerplates-With-Hapi/tree/master/sequelize-version) (any supported RDB). If you want to use something else - you can start from the [minimal-base](https://github.com/Y-LyN-10/API-Boilerplates-With-Hapi/tree/master/minimal-base) example which has no database attached. 
+For now, there are two major versions of this project: [with MongoDB](https://github.com/Y-LyN-10/API-Boilerplates-With-Hapi/tree/master/mongodb-version) and [with Sequelize](https://github.com/Y-LyN-10/API-Boilerplates-With-Hapi/tree/master/sequelize-version) (any supported RDB). If you want to use something else - you can start from the [minimal-base](https://github.com/Y-LyN-10/API-Boilerplates-With-Hapi/tree/master/minimal-base) example which has no database attached. 
 
 My plan is (eventually) to *merge* all these versions into one by creating a new db independent service layer.
 
