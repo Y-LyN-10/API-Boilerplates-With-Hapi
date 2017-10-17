@@ -1,0 +1,20 @@
+image: node:latest
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:	
+  - npm install
+  - npm install sequelize-cli -g
+  - npm install lab -g
+
+services:
+  - postgres
+  - redis
+
+build:
+  stage: test
+  script:
+    - node init-postgres.js
+    - lab -v
