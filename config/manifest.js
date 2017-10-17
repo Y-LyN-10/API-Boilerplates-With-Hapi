@@ -9,12 +9,17 @@ const manifest = {
       engine: require('catbox-redis'),
       name: 'session',
       host: envKey('redis_host'),
-      port: 6379
+      port: envKey('redis_port')
     }
   },
   connections: [{
     host: envKey('host'),
-    port: envKey('port') || 80,
+    port: envKey('port'),
+    // tls: {
+    //   key: fs.readFileSync('config/.keys/key.pem'),
+    //   cert: fs.readFileSync('config/.keys/cert.pem')
+    //   passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+    // },
     routes: {
       files: {
         relativeTo: Path.join(__dirname + './../public')
@@ -31,30 +36,6 @@ const manifest = {
     },
     router: {stripTrailingSlash: true},
     labels: [ 'api' ]
-  }, {
-    host: envKey('host'),
-    port: 443,
-    tls: {
-      key: fs.readFileSync('config/.keys/key.pem'),
-      cert: fs.readFileSync('config/.keys/cert.pem')
-
-      // passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
-    },
-    routes: {
-      files: {
-        relativeTo: Path.join(__dirname + './../public')
-      },
-      cors: {
-        origin: [ '*' ],
-        additionalExposedHeaders: [
-          'X-RateLimit-Limit',
-          'X-RateLimit-Remaining',
-          'X-RateLimit-Reset'
-        ]
-      },
-      security: true
-    },
-    router: {stripTrailingSlash: true}
   }],
   registrations: [{
     plugin: {
@@ -162,17 +143,17 @@ if (sslConn)  {
 
 // App Status Monitoring. Works with a signle connection only.
 // Run 'npm install hapijs-status-monitor --save' before using
-if (manifest.connections.length === 1)  {
-  manifest.registrations.push({
-    plugin: {
-      register: 'hapijs-status-monitor',
-      options: {
-        title: 'Example API Monitor',
-        connectionLabel: 'api'
-      }
-    }
-  });
-}
+// if (manifest.connections.length === 1)  {
+//   manifest.registrations.push({
+//     plugin: {
+//       register: 'hapijs-status-monitor',
+//       options: {
+//         title: 'Example API Monitor',
+//         connectionLabel: 'api'
+//       }
+//     }
+//   });
+// }
 
 // Exclude logs from production and tests
 if (process.env.NODE_ENV === 'development') {

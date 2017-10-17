@@ -7,11 +7,12 @@ const envKey = key => {
 
   const configuration = {
     host: process.env.HOST,
-    port: process.env.PORT || 80,
+    port: process.env.PORT || 8080,
     jwt_secret: process.env.JWT_SECRET,
     jar_secret: process.env.JAR_SECRET,
     mongo_uri: process.env.MONGO_URI,
     redis_host: process.env.REDIS_HOST,
+    redis_port: process.env.REDIS_PORT,
     google_client_id: process.env.GOOGLE_CLIENT_ID,
     google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
     email_address: process.env.EMAIL_ADDRESS,
