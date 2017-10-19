@@ -2,7 +2,7 @@ require('dotenv').config({path: __dirname + '/.env'});
 
 const envKey = key => {
   const env = process.env.NODE_ENV || 'development';
-  
+
   const configuration = {
     host: process.env.HOST || '127.0.0.1',
     port: process.env.PORT || 8080,

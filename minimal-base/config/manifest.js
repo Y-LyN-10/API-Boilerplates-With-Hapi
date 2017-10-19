@@ -7,20 +7,22 @@ const manifest = {
     debug: {request: [ 'error' ]},
     cache: {
       engine: require('catbox-redis'),
-      name: 'session',
+      name: 'cache',
       host: envKey('host'),
       port: envKey('redis_port')
     }
   },
-  connections: [{
+  connections: [ {
     host: envKey('host'),
     port: envKey('port'),
-    // uncomment for HTTPS
-    // tls: {
-    //   key: fs.readFileSync('config/.keys/key.pem'),
-    //   cert: fs.readFileSync('config/.keys/cert.pem')
-    //   passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
-    // },
+    // add/generate self-signed SSL keys and uncomment for HTTPS:
+    /* 
+    tls: {
+      key: fs.readFileSync('config/.keys/key.pem'),
+      cert: fs.readFileSync('config/.keys/cert.pem')
+      passphrase: process.env.CERT_PASSPHRASE // if needed for your cert
+    }, 
+    */
     routes: {
       cors: {
         origin: [ '*' ],
@@ -34,12 +36,12 @@ const manifest = {
     },
     router: {stripTrailingSlash: true},
     labels: [ 'api' ]
-  }],
+  } ],
   registrations: [{
     plugin: {
       register: './plugins/redis',
       options: {
-        partition: 'cache',
+        partition: 'session',
         host: '127.0.0.1', // default
         port: 6379,        // default
         password: ''
@@ -73,7 +75,7 @@ const manifest = {
     }
   }, {
     plugin: {
-      register: "hapi-auth-google",
+      register: 'hapi-auth-google',
       options: {
         REDIRECT_URL: '/auth/google',
         config: {
@@ -109,9 +111,9 @@ const manifest = {
 
 // hapi-auth-google can be registered only once, so if we have SSL connection, it's better to use it only
 const sslConn = manifest.connections.find((conn) => conn.tls);
-if(sslConn){
+if (sslConn) {
   manifest.registrations.map((r) => {
-    if(r.plugin.register === 'hapi-auth-google') {
+    if (r.plugin.register === 'hapi-auth-google') {
       return r.plugin.options.BASE_URL = 'https://' + sslConn.host + ':' + sslConn.port;
     }
   });
@@ -130,7 +132,7 @@ if(sslConn){
 //     }
 //   });
 // }
-  
+
 if (process.env.NODE_ENV !== 'production') {
 
   // blipp displays the route table on startup

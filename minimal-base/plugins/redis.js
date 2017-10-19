@@ -6,7 +6,7 @@ const redis  = require('redis');
 exports.register = function (server, pluginOptions, next) {
   var client = new Catbox.Client(require('catbox-redis'), pluginOptions);
   var instance = client.start(err => {
-    if (err) next (err);
+    if (err) {next (err);}
     next();
   });
 

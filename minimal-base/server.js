@@ -27,7 +27,8 @@ Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {
 
         // Log to the console the host and port info
         server.connections.forEach(connection => {
-          if(connection.info.protocol === 'https') {
+          if (connection.info.protocol === 'https') {
+
             // redirect all http request to secure route
             server.ext('onRequest', function (request, reply) {
               if (request.headers['x-forwarded-proto'] !== 'https') {
@@ -37,7 +38,7 @@ Glue.compose(manifest, { relativeTo: __dirname }, (err, server) => {
               reply();
             });
           }
-          
+
           server.log(
             ['info', 'server'],
             `server is listening on ${connection.info.uri} in ${process.env.NODE_ENV} mode`

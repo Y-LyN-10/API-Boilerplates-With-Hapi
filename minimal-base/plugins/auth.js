@@ -7,8 +7,8 @@ const uuid = require('uuid/v4');
 
 exports.register = function (server, pluginOptions, next) {
   const redisInstance = server.plugins.redis.client;
-  
-  const generateTokens = function(user, done) {
+
+  const generateTokens = function (user, done) {
     let session = {
       email : user.email,
       name  : user.name,
@@ -28,26 +28,26 @@ exports.register = function (server, pluginOptions, next) {
     let refreshToken = JWT.sign(session, process.env.JWT_SECRET, {algorithm: 'HS512'});
 
     done({ accessToken, refreshToken });
-  }
-  
-  const authenticate = function(request, account, done) {
+  };
+
+  const authenticate = function (request, account, done) {
     const sid = uuid().toString();
     account.sid = sid;
 
     const ttl = 60 * 45; // 45 minutes in seconds
 
     redisInstance.set(sid, JSON.stringify(account), 'EX', ttl, (err) => {
-      if (err) server.log(['err', 'redis'], err); return;
+      if (err) {server.log(['err', 'redis'], err);} return;
     });
-    
+
     server.methods.generateTokens(account, tokens => {
       done(tokens);
     });
-  }
-  
-  const validateToken = function (decoded, request, callback) {    
+  };
+
+  const validateToken = function (decoded, request, callback) {
     redisInstance.get(decoded.sid.toString(), (err, reply) => {
-      if (err || !reply) callback(null, false);
+      if (err || !reply) {callback(null, false);}
       callback(null, true);
     });
   };
@@ -62,7 +62,7 @@ exports.register = function (server, pluginOptions, next) {
   server.method('authenticate', authenticate);
 
   server.method('generateTokens', generateTokens);
-  
+
   // JWT Token Auth - required for all routes by default
   server.auth.strategy('jwt', 'jwt', true, {
     verifyFunc: verifyToken,
@@ -100,7 +100,7 @@ exports.register = function (server, pluginOptions, next) {
       }
     }
   });
-  
+
   server.route({
     method: 'POST',
     path: '/auth/login',
@@ -160,7 +160,7 @@ exports.register = function (server, pluginOptions, next) {
       }
     }
   });
-                
+
   next();
 };
 
