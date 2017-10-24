@@ -16,7 +16,7 @@ module.exports = function (request, reply, tokens, profile) {
       agent     : request.headers['user-agent']
     };
 
-    const User = require('../db/models/user.model');
+    const User = require('../db/models/user');
     const user = User.findByEmail(session.email);
 
     console.log(session.email);
