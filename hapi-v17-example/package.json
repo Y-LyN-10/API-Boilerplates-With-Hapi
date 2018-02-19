@@ -1,0 +1,37 @@
+{
+  "name": "hapi-v17-example",
+  "version": "0.0.1",
+  "description": "Example server with the latest version of Hapi.js at this point (v17)",
+  "main": "server.js",
+  "scripts": {
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/tape/bin/tape ./test/*.test.js && ./node_modules/.bin/istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100",
+    "jshint": "./node_modules/jshint/bin/jshint -c .jshintrc --exclude-path .gitignore .",
+    "spec": "node ./node_modules/tape/bin/tape ./test/*.test.js | node_modules/tap-spec/bin/cmd.js",
+    "test": "PORT=8000 ./node_modules/.bin/istanbul cover ./node_modules/tape/bin/tape ./test/*.test.js",
+    "start": "PORT=8000 node_modules/.bin/nodemon example/google.server.js"
+  },
+  "author": "Yulia Tenincheva",
+  "license": "MIT",
+  "dependencies": {
+    "blipp": "^3.0.0",
+    "boom": "^7.1.1",
+    "dotenv": "^5.0.0",
+    "glue": "^5.0.0",
+    "good": "^8.1.0",
+    "good-console": "^7.1.0",
+    "good-squeeze": "^5.0.2",
+    "hapi": "^17.0.0-rc9",
+    "hapi-auth-cookie": "^8.1.0",
+    "hapi-swagger": "^9.1.1",
+    "inert": "^5.1.0",
+    "vision": "^5.3.1"
+  },
+  "devDependencies": {
+    "env2": "^2.2.0",
+    "googleapis": "^22.2.0",
+    "istanbul": "^0.4.5",
+    "jsonwebtoken": "^8.1.0",
+    "nock": "^9.0.25",
+    "tape": "^4.8.0"
+  }
+}
